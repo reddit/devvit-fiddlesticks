@@ -33,31 +33,10 @@ const ClubTypeSet: {readonly [club in ClubType]: true} = {
   PW: true,
   SW: true
 }
-const img = {w: 165, h: 905}
-const hitbox = {x: 114, y: 15, w: 29, h: 829}
-const hRatio = img.h / img.w
-const scaledHitbox = {
-  x: (0.1 * hitbox.x) / img.w,
-  y: (0.1 * hitbox.y * hRatio) / img.h,
-  w: (0.1 * hitbox.w) / img.w,
-  h: (0.1 * hitbox.h * hRatio) / img.h
-}
-
-const clubWH: {readonly [club in ClubType]: WH} = {
-  '1W': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '3W': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '5W': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '3I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '4I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '5I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '6I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '7I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '8I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  '9I': {w: scaledHitbox.w, h: scaledHitbox.h},
-  LW: {w: scaledHitbox.w, h: scaledHitbox.h},
-  Putter: {w: scaledHitbox.w, h: scaledHitbox.h},
-  PW: {w: scaledHitbox.w, h: scaledHitbox.h},
-  SW: {w: scaledHitbox.w, h: scaledHitbox.h}
+const imgWH: Readonly<WH> = {w: 46, h: 909}
+const scaledImgWH: Readonly<WH> = {
+  w: (0.8 * imgWH.w) / imgWH.h,
+  h: 0.8
 }
 
 export type Bag = {
@@ -87,25 +66,14 @@ export function Bag(rnd: Random): Bag {
     missing.push({
       x: rnd.num,
       y: rnd.num,
-      w: clubWH[type].w,
-      h: clubWH[type].h,
-      // rot: rnd.num * 2 * Math.PI,
-      rot: 0,
+      w: scaledImgWH.w,
+      h: scaledImgWH.h,
+      rot: rnd.num * 2 * Math.PI,
       type
     })
   }
   console.log(missing)
   return {missing, picked: []}
-}
-
-function scaleClub(box: Readonly<RBox>): RBox {
-  return {
-    x: box.x + scaledHitbox.x,
-    y: box.y + scaledHitbox.y,
-    w: box.w,
-    h: box.h,
-    rot: box.rot
-  }
 }
 
 export function bagPoint(
@@ -114,9 +82,8 @@ export function bagPoint(
 ): Club | undefined {
   console.log('point', xy)
   return bag.missing.find((club, i) => {
-    const scaled = scaleClub(club)
-    const hit = clubHits(scaled, xy)
-    if (hit) console.log('hit', i, club, scaled)
+    const hit = clubHits(club, xy)
+    if (hit) console.log('hit', i, club)
     return hit
   })
 }
@@ -127,7 +94,7 @@ export function bagPick(bag: Bag, point: Readonly<Club>): number {
       bag.picked.push(bag.missing.splice(i, 1)[0]!)
       return 1
     }
-    if (clubHits(scaleClub(point), scaleClub(club))) {
+    if (clubHits(point, club)) {
       console.log('blocked by', club, i)
       return -1
     }
