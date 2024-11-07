@@ -55,6 +55,7 @@ export type Bag = {
 }
 
 export type Club = {
+  id: number
   /** position on a 1 x 1. */
   x: number
   y: number
@@ -67,11 +68,19 @@ export type Club = {
 }
 
 export function Bag(rnd: Random): Bag {
-  const types = Object.keys(ClubTypeSet) as ClubType[]
+  const types = [
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet)
+  ] as ClubType[]
   const missing: Club[] = []
+  let id = 0
   while (types.length) {
     const type = types.splice(Math.trunc(rnd.num * types.length), 1)[0]!
     missing.push({
+      id: id++,
       x: rnd.num,
       y: rnd.num,
       w: scaledImgWH.w,
@@ -109,7 +118,7 @@ function hitboxClub(box: Readonly<RBox>): RBox {
 export function bagPick(bag: Bag, point: Readonly<Club>): number {
   const hitbox = hitboxClub(point)
   for (const [i, club] of bag.missing.entries()) {
-    if (club.type === point.type) {
+    if (club.id === point.id) {
       bag.picked.push(bag.missing.splice(i, 1)[0]!)
       return 1
     }

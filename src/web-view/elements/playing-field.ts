@@ -1,8 +1,7 @@
-import {type TemplateResult, html, render} from 'lit-html'
+import {html, render} from 'lit-html'
 import {repeat} from 'lit-html/directives/repeat.js'
 import {type Bag, bagPick, bagPoint} from '../types/bag.js'
 import {Bubble} from '../utils/bubble.js'
-import {paletteBlack} from '../utils/palette.js'
 import {css, styles} from './css.js'
 
 declare global {
@@ -36,7 +35,6 @@ export class PlayingField extends HTMLElement {
         width: 100%;
         height: auto;
         aspect-ratio: 1 / 1;
-        background: pink;
         margin: auto;
       }
 
