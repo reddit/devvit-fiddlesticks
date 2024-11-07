@@ -1,39 +1,69 @@
 import {clamp, closeTo} from '../utils/math.js'
 
-/**
- * rectangle. empty is zero width or height. for ents, x and y tend to be
- * fractional and w and h integral pixel dimensions in level space.
- */
-export type Box = XY & WH
+export type RBox = XY &
+  WH & {
+    /** radians. */
+    rot: number
+  }
 export type WH = {w: number; h: number}
 export type XY = {x: number; y: number}
 
-// to-do: tests.
-export function boxHits(
-  lhs: Readonly<Box>,
-  rhs: Readonly<XY & Partial<WH>>
-): boolean {
-  const rw = rhs.w ?? 1 // point? an empty box defines zero w/h.
-  const rh = rhs.h ?? 1
-  if (!lhs.w || !lhs.h || !rw || !rh) return false // noncommutative.
-  return (
-    lhs.x < rhs.x + rw &&
-    lhs.x + lhs.w > rhs.x &&
-    lhs.y < rhs.y + rh &&
-    lhs.y + lhs.h > rhs.y
-  )
+// need to test club head too
+
+export function rboxHits(lhs: Readonly<RBox>, rhs: Readonly<RBox>): boolean {
+  const rotLHS = rboxRot(lhs)
+  const rotRHS = rboxRot(rhs)
+  for (const axis of [...getAxes(rotLHS), ...getAxes(rotRHS)]) {
+    const projLHS = project(rotLHS, axis)
+    const projRHS = project(rotRHS, axis)
+    if (projLHS.max < projRHS.min || projRHS.max < projLHS.min) return false
+  }
+  return true
 }
 
-export function xyAdd(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
-  return {x: lhs.x + rhs.x, y: lhs.y + rhs.y}
+/** rotate box around center. */
+function rboxRot(box: Readonly<RBox>): XY[] {
+  const {x, y, w, h, rot} = box
+  const half = {w: w / 2, h: h / 2}
+  return [
+    xyRot({x: x - half.w, y: y - half.h}, box, rot),
+    xyRot({x: x + half.w, y: y - half.h}, box, rot),
+    xyRot({x: x + half.w, y: y + half.h}, box, rot),
+    xyRot({x: x - half.w, y: y + half.h}, box, rot)
+  ]
+}
+
+/** Projects the vertices of a rectangle onto a given axis to determine the minimum and maximum projections. */
+function project(
+  verts: readonly Readonly<XY>[],
+  axis: Readonly<XY>
+): {min: number; max: number} {
+  let min = Infinity
+  let max = -Infinity
+  for (const vertex of verts) {
+    const projection = vertex.x * axis.x + vertex.y * axis.y
+    min = Math.min(min, projection)
+    max = Math.max(max, projection)
+  }
+  return {min, max}
+}
+
+/** Gets the perpendicular axes of the edges of the rectangle for SAT. */
+function getAxes(verts: Readonly<XY>[]): XY[] {
+  const axes = []
+  for (let i = 0; i < verts.length; i++) {
+    const edge = xySub(verts[i]!, verts[(i + 1) % verts.length]!)
+    axes.push({x: -edge.y, y: edge.x})
+  }
+  return axes
 }
 
 /** returns angle between vectors in radians [0, π]. */
-export function xyAngleBetween(v0: Readonly<XY>, v1: Readonly<XY>): number {
-  const mag0 = xyMagnitude(v0)
-  const mag1 = xyMagnitude(v1)
+export function xyAngleBetween(lhs: Readonly<XY>, rhs: Readonly<XY>): number {
+  const mag0 = xyMagnitude(lhs)
+  const mag1 = xyMagnitude(rhs)
   if (!mag0 && !mag1) return 0
-  return Math.acos(clamp(xyDot(v0, v1) / (mag0 * mag1 || 1), -1, 1))
+  return Math.acos(clamp(xyDot(lhs, rhs) / (mag0 * mag1 || 1), -1, 1))
 }
 
 export function xyCloseTo(
@@ -59,6 +89,16 @@ export function xyMagnitude(v: Readonly<XY>): number {
 // ): XY {
 //   return {x: lerp(start.x, end.x, ratio), y: lerp(start.y, end.y, ratio)}
 // }
+
+/** rotate point around center. */
+function xyRot(xy: Readonly<XY>, origin: Readonly<XY>, rot: number): XY {
+  const cos = Math.cos(rot)
+  const sin = Math.sin(rot)
+  return {
+    x: cos * (xy.x - origin.x) - sin * (xy.y - origin.y) + origin.x,
+    y: sin * (xy.x - origin.x) + cos * (xy.y - origin.y) + origin.y
+  }
+}
 
 export function xySub(lhs: Readonly<XY>, rhs: Readonly<XY>): XY {
   return {x: lhs.x - rhs.x, y: lhs.y - rhs.y}

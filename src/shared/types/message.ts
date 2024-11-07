@@ -1,6 +1,4 @@
-import type {Author, PlayerSerial} from './serial.js'
-import type {T2} from './tid.js'
-import type {UUID} from './uuid.js'
+import type {Profile} from './serial.js'
 
 /** a window message from the app to the web view. */
 export type AppMessage = {
@@ -18,39 +16,30 @@ export type AppMessageQueue = {
   readonly q: Readonly<AppMessage>[]
 }
 
-// hack: Omit<AppMessage, 'id'> was breaking.
-export type NoIDAppMessage =
-  | {type: 'Connected'}
-  | {type: 'Disconnected'}
-  /**
-   * hack: the web view iframe is loaded immediately but the local runtime is
-   * slow. wait until the local runtime is loaded before attempting any state
-   * changes that drive messages that might be dropped.
-   */
-  | {
-      /**
-       * configure web view lifetime debug mode. this is by request in devvit
-       * but that granularity doesn't make sense in the web view.
-       */
-      debug: boolean
-      author: Author
-      completed: boolean
-      // to-do: rename profile.
-      p1: {client: string; name: string; snoovatarURL: string; t2: T2}
-      readonly type: 'Init'
-    }
-  | {msg: PeerMessage; readonly type: 'Peer'}
+export function AppMessageQueue(init: InitAppMessage): AppMessageQueue {
+  // init to 1 so that webroot can be at 0.
+  return {id: 1, q: [{...init, id: 1}]}
+}
 
-/** a realtime message from another instance. */
-export type PeerMessage = {
-  peer: true
-  player: PlayerSerial
-  readonly type: 'PeerUpdate'
+// hack: Omit<AppMessage, 'id'> was breaking.
+export type NoIDAppMessage = InitAppMessage
+
+/**
+ * hack: the web view iframe is loaded immediately but the local runtime is
+ * slow. wait until the local runtime is loaded before attempting any state
+ * changes that drive messages that might be dropped.
+ */
+export type InitAppMessage = {
   /**
-   * filter out messages from different versions. to-do: consider an upgrade
-   * banner or filtering out at the channel level.
+   * configure web view lifetime debug mode. this is by request in devvit
+   * but that granularity doesn't make sense in the web view.
    */
-  version: number
+  debug: boolean
+  p1: Profile
+  score: number | null
+  matchSetNum: number
+  seed: number
+  readonly type: 'Init'
 }
 
 /** a window message from the web view to the app. */
@@ -62,22 +51,9 @@ export type WebViewMessage = {
   id: number
 } & NoIDWebViewMessage
 
+// hack: Omit<WebViewMessage, 'id'> was breaking.
 export type NoIDWebViewMessage =
-  | {uuid: UUID; readonly type: 'Init'}
   | {score: number; readonly type: 'GameOver'}
+  | {readonly type: 'Init'}
+  | {readonly type: 'Play'}
   | {readonly type: 'NewGame'}
-  | {readonly type: 'Pause'}
-  | {msg: PeerMessage; readonly type: 'Peer'}
-  | {readonly type: 'Resume'}
-
-/**
- * the transmitted and expected message version. messages not at a matching
- * version should be ignored if it contains schema breaking changes.
- */
-export const peerSchemaVersion: number = 0
-
-export const heartbeatPeriodMillis: number = 9_000
-export const peerThrottleMillis: number = 300
-export const disconnectMillis: number = 30_000
-export const insignificantDirRadians: number = 0.05
-export const insignificantMovePx: number = 50

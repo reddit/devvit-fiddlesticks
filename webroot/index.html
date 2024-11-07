@@ -2,9 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>corridor</title>
+    <title>fiddlesticks</title>
+    <style>
+      @font-face {
+        font-family: 'Item Regular';
+        font-style: normal;
+        font-display: block; /* wait as long as possible for font to download. */
+        src: url('assets/item-regular.ttf') format('woff');
+      }
+
+      :root {
+        --color-green: #b3d9a5;
+      }
+
+      body {
+        background-color: var(--color-green);
+        background-image: url('assets/fairway.webp');
+
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+      }
+  </style>
   </head>
   <body>
+    <app-el></app-el>
     <script src="index.js" type="module"></script>
   </body>
 </html>

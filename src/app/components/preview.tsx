@@ -3,9 +3,14 @@ import {Devvit} from '@devvit/public-api'
 export const previewVersion: number = 0
 
 export function Preview(): JSX.Element {
-  // to-do: this should be a checkerboard or checkerboard-based animation.
+  // to-do: this should be a golf bag silhouette or tiled pattern.
   return (
-    <vstack width={'100%'} height={'100%'} alignment='center middle'>
+    <vstack
+      width={'100%'}
+      height={'100%'}
+      alignment='center middle'
+      backgroundColor='#b3d9a5'
+    >
       <image
         url='loading.gif'
         description='loading…'

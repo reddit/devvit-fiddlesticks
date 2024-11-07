@@ -1,7 +1,3 @@
-export const white: string = '#ffff'
-export const white90: string = '#fffe'
-export const white80: string = '#fffd'
-export const white50: string = '#fff8'
-export const black90: string = '#000b'
-
-// to-do: extract beeps.
+export const paletteBlack: string = '#2c2c2c'
+export const paletteGreen: string = '#b3d9a5'
+export const paletteWhite: string = '#f4f4f4'

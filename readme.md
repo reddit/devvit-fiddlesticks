@@ -1,4 +1,131 @@
-# ⬤◯ [corridor](https://reddit.com/r/corridorgame)
+# ⬤◯ [fiddlesticks](https://reddit.com/r/fiddlesticks)
+
+I somehow did way too much upfront work on everything, especially Redis. I don't know it was good to get some foundations in but I really didn't like how long it took to get anything drawing and to realize I didn't want to use canvas at all.
+
+
+I think the reason corridor made it kind of far on some things is because of the minimized Reddit and Redis integration. hard to get a good foundation to be comprehend and be productive in.
+
+
+despite that the default for all biome rules is error (red squigglies). I stop in the middle of what I'm doing to address what end up being trivial stylistic and lints that are unlikely to cause a bug during development.
+
+biome doesn't format html template literals.
+
+spent a ton of time on the leaderboard. the cardinal sin of imaging what you might need.
+
+
+```
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+```
+and project references seem totally incompatible.
+
+```
+Referenced project '/home/user/work/reddit/src/stephenoid/games/fiddlesticks/src/shared' may not disable emit.ts
+```
+
+
+experimenting with yhtml. couldn't get event listeners to work with shadow DOM.
+
+```ts
+export class AppEl extends HTMLElement {
+  static #styles: CSSStyleSheet = new CSSStyleSheet()
+  static {
+    this.#styles.replace(`
+      :host {
+        background-image: url('assets/fairway.webp');
+        display: flex;
+        width: 100%;
+      }
+      title-screen {
+        flex-grow: 1;
+      }
+    `)
+  }
+
+  #played: boolean = false
+
+  constructor() {
+    super()
+    this.attachShadow({mode: 'open'})
+    this.shadowRoot!.adoptedStyleSheets.push(AppEl.#styles)
+  }
+
+  connectedCallback(): void {
+    this.#render()
+  }
+
+  private _onPlay(): void {
+    console.log('play')
+    this.#render()
+  }
+
+  #render(): void {
+    this.shadowRoot!.innerHTML =
+      html`<title-screen played='${this.#played}' @play=${this._onPlay}></title-screen>`
+  }
+}
+
+customElements.define('app-el', AppEl)
+```
+
+when I reworked to the light DOM, event firing functioned but I hit an infinite recursion bug and I lost patience at this point as the library is only available in minified, untyped form.
+
+```ts
+export class TitleScreen extends HTMLElement {
+  constructor() {
+    super()
+    this.style.display = 'flex'
+    this.style.alignItems = 'center'
+    this.style.flexDirection = 'column'
+  }
+
+  get played(): boolean {
+    return this.getAttribute('played') === 'true'
+  }
+
+  set played(played: string) {
+    this.setAttribute('played', played)
+  }
+
+  private _onNewGame(): void {
+    this.dispatchEvent(Bubble('new-game', undefined))
+  }
+
+  private _onPlay(): void {
+    this.dispatchEvent(Bubble('play', undefined))
+  }
+
+  connectedCallback(): void {
+    this.#render()
+  }
+
+  #render() {
+    this.innerHTML = html`
+      <style>
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+      </style>
+      <img alt='fiddlesticks' src='assets/fiddlesticks.webp'>
+      ${
+        this.played
+          ? html`<button @click="_onNewGame">New Game</button>`
+          : html`<button @click="_onPlay">Play</button>`
+      }
+    `
+  }
+}
+
+customElements.define('title-screen', TitleScreen)
+```
+
+it also broke type-checking for event callbacks.
+
+experimenting with lit-html which is a subset of lit. had to add a css nop helper for syntax hihglighting.
+
+there's so much integation needed for redis, blocks, webview, lit, and canvas that I feel this is the most complicated game of pick up sticks ever.
+
 
 [![demo](resources/screenshot.png)](resources/demo.mp4)
 
@@ -18,7 +145,6 @@ I'm going to start doing:
 - be tactical about social. networking is hard. I will probably avoid MMOs and pick more focused social features going forward under these time constraints.
 - be big and colorful. I like the aesthetic of corridor but I knew it'd be polarizing.
 - think critically when planning. you don't get what you don't aim at. I want to be careful not to build something I know I don't want.
-- try noEmit and the native unit test runner.
 
 I'm going to keep doing:
 

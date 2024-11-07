@@ -1,24 +1,27 @@
-import {Devvit} from '@devvit/public-api'
-import type {Context} from '@devvit/public-api'
+import {type Context, Devvit, type JobContext} from '@devvit/public-api'
 import {Preview} from '../components/preview.js'
-import {redisPutPost} from './redis.js'
+import {redisPostCountInc, redisPostCreate} from './redis.js'
 
-/** create a new post as the viewer. */
-export async function submitNewPost(ctx: Context): Promise<void> {
-  if (!ctx.subredditName) throw Error('no subreddit name')
-  if (!ctx.userId) throw Error('no user ID')
+export async function submitNewPost(ctx: Context | JobContext): Promise<void> {
+  if (!ctx.subredditName) throw Error('no sub name')
 
-  const title = `corridor ${ctx.userId.slice(3)}`
+  const matchSetNum = await redisPostCountInc(ctx.redis)
 
-  // requires special permission: post as viewer.
+  // requires special permisoin to potst as user
   const post = await ctx.reddit.submitPost({
     preview: <Preview />,
-    title,
-    subredditName: ctx.subredditName
+    subredditName: ctx.subredditName,
+    title: `Fiddlesticks Match #${matchSetNum}`
   })
 
-  await redisPutPost(ctx.redis, post)
+  await redisPostCreate(ctx.redis, post, matchSetNum)
 
-  ctx.ui.showToast({appearance: 'success', text: `${title} made.`})
-  ctx.ui.navigateTo(post)
+  if ('ui' in ctx) {
+    ctx.ui.showToast({
+      appearance: 'success',
+      text: `Fiddlesticks match #${matchSetNum} set.`
+    })
+    ctx.ui.navigateTo(post)
+  }
+  console.log(`fiddlesticks match #${matchSetNum} set by ${ctx.userId}`)
 }

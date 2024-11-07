@@ -8,7 +8,10 @@
     },
     "linter": { "enabled": true }
   },
-  "files": { "ignore": ["webroot/index.js"], "maxSize": 2400000 },
+  "files": {
+    "ignore": ["webroot/index.js", "src/web-view/yhtml.ts"],
+    "maxSize": 2400000
+  },
   "formatter": { "indentStyle": "space" },
   "javascript": {
     "formatter": {
@@ -31,7 +34,13 @@
         // devvit buttons do not have a type prop.
         "useButtonType": "off"
       },
-      "style": { "noInferrableTypes": "off", "noNonNullAssertion": "off" },
+      "complexity": { "noThisInStatic": "off" },
+      "style": {
+        "noInferrableTypes": "off",
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "off",
+        "useNumberNamespace": "off"
+      },
       "suspicious": { "noImplicitAnyLet": "off" }
     }
   },
