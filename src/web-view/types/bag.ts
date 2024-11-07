@@ -38,6 +38,14 @@ const scaledImgWH: Readonly<WH> = {
   w: (0.8 * imgWH.w) / imgWH.h,
   h: 0.8
 }
+type Box = WH & XY
+const hitbox: Readonly<Box> = {x: 9, y: 10, w: 28, h: 888}
+const scaledHitbox: Readonly<Box> = {
+  x: (0.8 * hitbox.x) / imgWH.h,
+  y: 0.8 * hitbox.y,
+  w: (0.8 * hitbox.w) / imgWH.h,
+  h: (0.8 * hitbox.h) / imgWH.h
+}
 
 export type Bag = {
   /** arranged from top to bottom. */
@@ -88,13 +96,24 @@ export function bagPoint(
   })
 }
 
+function hitboxClub(box: Readonly<RBox>): RBox {
+  return {
+    x: box.x + scaledHitbox.x,
+    y: box.y + scaledHitbox.y,
+    w: scaledHitbox.w,
+    h: scaledImgWH.h,
+    rot: box.rot
+  }
+}
+
 export function bagPick(bag: Bag, point: Readonly<Club>): number {
+  const hitbox = hitboxClub(point)
   for (const [i, club] of bag.missing.entries()) {
     if (club.type === point.type) {
       bag.picked.push(bag.missing.splice(i, 1)[0]!)
       return 1
     }
-    if (clubHits(point, club)) {
+    if (clubHits(hitbox, hitboxClub(club))) {
       console.log('blocked by', club, i)
       return -1
     }
