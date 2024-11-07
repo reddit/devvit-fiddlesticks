@@ -29,7 +29,7 @@ export type MatchRecord = {
   /** Redis schema version; upgrades may be batched by post. */
   redisVersion: number
   /** match score. initially zero; may be negative. */
-  score: number
+  score: number // to-do: this could have been derived from the score table.
   t2: T2
   t3: T3
 }
@@ -46,6 +46,7 @@ export type PostRecord = {
   }
   /** post creation timestamp. */
   created: UTCMillis
+  gameVersion: number
   /** unique post number. */
   matchSetNum: number
   /** post loading screen version. */
@@ -62,6 +63,12 @@ export type PostRecord = {
 type T3T2 = `${T3}_${T2}`
 
 export const redisSchemaVersion: number = 0
+
+/**
+ * if mechanics change later, we have a way to keep legacy behavior for old
+ * posts or simply disable play on them.
+ */
+export const gameVersion: number = 0
 
 /** player, post, and match look up and counts. */
 
@@ -127,18 +134,18 @@ export async function redisMatchCreate(
     player.t2
   )
   const t3T2ScoreZByT2Key = t3T2ScoreZByT2KeyTemplate.replace('{t2}', player.t2)
-  const tx = await redis.watch()
-  await tx.multi()
+  // const tx = await redis.watch()
+  // await tx.multi()
   await Promise.all([
-    tx.hSet(matchByT3T2Key, {[t3t2]: JSON.stringify(match)}), // lookup.
-    tx.zIncrBy(t3MatchesZKey, post.t3, 1),
-    tx.zAdd(t3T2CreatedZKey, {member: t3t2, score: match.created}),
-    tx.zAdd(t3T2ScoreZByT3Key, {member: t3t2, score: match.score}),
-    tx.zAdd(t3T2CreatedZByT3Key, {member: t3t2, score: match.created}),
-    tx.zAdd(t3T2CreatedZByT2Key, {member: t3t2, score: match.created}),
-    tx.zAdd(t3T2ScoreZByT2Key, {member: t3t2, score: match.score})
+    redis.hSet(matchByT3T2Key, {[t3t2]: JSON.stringify(match)}), // lookup.
+    redis.zIncrBy(t3MatchesZKey, post.t3, 1),
+    redis.zAdd(t3T2CreatedZKey, {member: t3t2, score: match.created}),
+    redis.zAdd(t3T2ScoreZByT3Key, {member: t3t2, score: match.score}),
+    redis.zAdd(t3T2CreatedZByT3Key, {member: t3t2, score: match.created}),
+    redis.zAdd(t3T2CreatedZByT2Key, {member: t3t2, score: match.created}),
+    redis.zAdd(t3T2ScoreZByT2Key, {member: t3t2, score: match.score})
   ])
-  await tx.exec() // to-do: error checking.
+  // await tx.exec() // to-do: error checking.
   return match
 }
 
@@ -149,15 +156,16 @@ export async function redisMatchUpdate(
   const t3t2 = T3T2(match.t3, match.t2)
   const t3T2ScoreZByT3Key = t3T2ScoreZByT3KeyTemplate.replace('{t3}', match.t3)
   const t3T2ScoreZByT2Key = t3T2ScoreZByT2KeyTemplate.replace('{t2}', match.t2)
-  const tx = await redis.watch()
-  await tx.multi()
+  // to-do: only allow one update.
+  // const tx = await redis.watch()
+  // await tx.multi()
   await Promise.all([
-    tx.hSet(matchByT3T2Key, {[t3t2]: JSON.stringify(match)}), // lookup.
-    tx.zIncrBy(t2ScoreZKey, match.t2, match.score),
-    tx.zAdd(t3T2ScoreZByT3Key, {member: t3t2, score: match.score}),
-    tx.zAdd(t3T2ScoreZByT2Key, {member: t3t2, score: match.score})
+    redis.hSet(matchByT3T2Key, {[t3t2]: JSON.stringify(match)}), // lookup.
+    redis.zIncrBy(t2ScoreZKey, match.t2, match.score),
+    redis.zAdd(t3T2ScoreZByT3Key, {member: t3t2, score: match.score}),
+    redis.zAdd(t3T2ScoreZByT2Key, {member: t3t2, score: match.score})
   ])
-  await tx.exec() // to-do: error checking.
+  // await tx.exec() // to-do: error checking.
   return match
 }
 
@@ -174,13 +182,13 @@ export async function redisPlayerCreate(
   playerish: Readonly<Omit<PlayerRecord, 'redisVersion'>>
 ): Promise<PlayerRecord> {
   const player = {...playerish, redisVersion: redisSchemaVersion}
-  const tx = await redis.watch()
-  await tx.multi()
+  // const tx = await redis.watch()
+  // await tx.multi()
   await Promise.all([
-    tx.hSet(playerByT2Key, {[player.t2]: JSON.stringify(player)}),
-    tx.zIncrBy(t2ScoreZKey, player.t2, 0)
+    redis.hSet(playerByT2Key, {[player.t2]: JSON.stringify(player)}),
+    redis.zIncrBy(t2ScoreZKey, player.t2, 0)
   ])
-  await tx.exec() // to-do: error checking.
+  // await tx.exec() // to-do: error checking.
   return player
 }
 
@@ -235,9 +243,7 @@ export async function* redisPlayerMatchesByScoreQuery(
     t3T2ScoreZByT2Key,
     start,
     end,
-    {
-      by: 'score'
-    }
+    {by: 'score'}
   )) {
     const match = await redisMatchQuery(redis, t3t2 as T3T2)
     if (match) yield match
@@ -261,6 +267,7 @@ export async function redisPostCreate(
       snoovatarURL: (await author?.getSnoovatarUrl()) ?? null
     },
     created: postish.createdAt.getUTCMilliseconds() as UTCMillis,
+    gameVersion,
     matchSetNum,
     previewVersion,
     redisVersion: redisSchemaVersion,
@@ -269,14 +276,14 @@ export async function redisPostCreate(
     seed: Math.trunc(Math.random() * randomEndSeed),
     t3: postish.id
   }
-  const tx = await redis.watch()
-  await tx.multi()
+  // const tx = await redis.watch()
+  // await tx.multi()
   await Promise.all([
-    tx.hSet(postByT3Key, {[post.t3]: JSON.stringify(post)}), // lookup.
-    tx.zAdd(t3CreatedZKey, {member: post.t3, score: post.created}),
-    tx.zAdd(t3MatchesZKey, {member: post.t3, score: 0})
+    redis.hSet(postByT3Key, {[post.t3]: JSON.stringify(post)}), // lookup.
+    redis.zAdd(t3CreatedZKey, {member: post.t3, score: post.created}),
+    redis.zAdd(t3MatchesZKey, {member: post.t3, score: 0})
   ])
-  await tx.exec() // to-do: error checking.
+  // await tx.exec() // to-do: error checking.
   return post
 }
 
@@ -290,9 +297,9 @@ export async function redisPostQuery(
 
 export async function* redisPostLeaderboardQuery(
   redis: RedisClient,
-  start: number,
-  end: number,
-  t3: T3
+  t3: T3,
+  start: number = Number.MIN_SAFE_INTEGER,
+  end: number = Number.MAX_SAFE_INTEGER
 ): AsyncGenerator<{match: MatchRecord; player: PlayerRecord}> {
   const t3T2ScoreZByT3Key = t3T2ScoreZByT3KeyTemplate.replace('{t3}', t3)
   for (const {member: t3t2} of await redis.zRange(
@@ -300,7 +307,8 @@ export async function* redisPostLeaderboardQuery(
     start,
     end,
     {
-      by: 'score'
+      by: 'score',
+      reverse: true
     }
   )) {
     const match = await redisMatchQuery(redis, t3t2 as T3T2)
@@ -312,18 +320,16 @@ export async function* redisPostLeaderboardQuery(
 
 export async function* redisPostMatchesByCreationQuery(
   redis: RedisClient,
-  start: number,
-  end: number,
-  t3: T3
+  t3: T3,
+  start: number = Number.MIN_SAFE_INTEGER,
+  end: number = Number.MAX_SAFE_INTEGER
 ): AsyncGenerator<MatchRecord> {
   const t3T2CreatedZByT3Key = t3T2CreatedZByT3KeyTemplate.replace('{t3}', t3)
   for (const {member: t3t2} of await redis.zRange(
     t3T2CreatedZByT3Key,
     start,
     end,
-    {
-      by: 'score'
-    }
+    {by: 'score', reverse: true}
   )) {
     const match = await redisMatchQuery(redis, t3t2 as T3T2)
     if (match) yield match
@@ -332,11 +338,12 @@ export async function* redisPostMatchesByCreationQuery(
 
 export async function* redisSubLeaderboardQuery(
   redis: RedisClient,
-  start: number,
-  end: number
+  start: number = Number.MIN_SAFE_INTEGER,
+  end: number = Number.MAX_SAFE_INTEGER
 ): AsyncGenerator<PlayerRecord> {
   for (const {member: t2} of await redis.zRange(t2ScoreZKey, start, end, {
-    by: 'score'
+    by: 'score',
+    reverse: true
   })) {
     const player = await redisPlayerQuery(redis, T2(t2))
     if (player) yield player

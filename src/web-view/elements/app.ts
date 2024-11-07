@@ -7,7 +7,7 @@ import type {
   NoIDWebViewMessage
 } from '../../shared/types/message.js'
 import {Random} from '../../shared/types/random.js'
-import type {Profile} from '../../shared/types/serial.js'
+import type {Profile, Scoreboard} from '../../shared/types/serial.js'
 import {anonSnoovatarURL, anonUsername, noT2} from '../../shared/types/tid.js'
 import type {UTCMillis} from '../../shared/types/time.js'
 import type {Audio} from '../types/audio.js'
@@ -50,6 +50,7 @@ width: 100%;
   #p1: Profile = {name: anonUsername, snoovatarURL: anonSnoovatarURL, t2: noT2}
   #rnd: Random | undefined
   #score: number = 0
+  #scoreboard: Scoreboard = {scores: []}
   #state: 'Loading' | 'Playable' | 'Playing' | 'Unplayable' = 'Loading'
 
   constructor() {
@@ -57,27 +58,20 @@ width: 100%;
 
     this.attachShadow({mode: 'open'})
     this.shadowRoot!.adoptedStyleSheets.push(App.#styles)
-
-    this.addEventListener(
-      'message',
-      <EventListenerOrEventListenerObject>this._onMsg
-    )
   }
 
   connectedCallback(): void {
+    addEventListener('message', this._onMsg)
     this.render()
   }
 
+  disconnectedCallback(): void {
+    removeEventListener('message', this._onMsg)
+  }
+
   #onGameOver(ev: CustomEvent<UTCMillis>): void {
+    this.#score = ev.detail
     this.#state = 'Unplayable'
-    // this.#ended = ev.detail
-    // if (!this.#bag) throw Error('no bag')
-    // if (!this.#bag.missing.length)
-    // to-do: wrong place for scoring
-    // this.#score += Math.min(
-    //   matchMillis / 1000,
-    //   Math.trunc((this.#ended - this.#started!) / 1_000)
-    // )
     this.#postMessage({type: 'GameOver', score: this.#score})
     this.render()
   }
@@ -120,7 +114,7 @@ width: 100%;
         break
       case 'Unplayable':
         this.#render(
-          html`<game-over-screen @new-game=${this.#onNewGame}></game-over-screen>`
+          html`<game-over-screen .matchSetNum=${this.#matchSetNum} .p1=${this.#p1} .score=${this.#score} .scoreboard=${this.#scoreboard} @new-game=${this.#onNewGame}></game-over-screen>`
         )
         break
       default:
@@ -153,6 +147,7 @@ width: 100%;
           this.#p1.name = msg.p1.name
           this.#p1.snoovatarURL = msg.p1.snoovatarURL
           this.#score = msg.score ?? 0
+          this.#scoreboard = msg.scoreboard
           this.#state = msg.score == null ? 'Playable' : 'Unplayable'
           this.render()
           this.#postMessage({type: 'Init'})

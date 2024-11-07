@@ -1,4 +1,4 @@
-import type {Profile} from './serial.js'
+import type {Profile, Scoreboard} from './serial.js'
 
 /** a window message from the app to the web view. */
 export type AppMessage = {
@@ -36,8 +36,9 @@ export type InitAppMessage = {
    */
   debug: boolean
   p1: Profile
-  score: number | null
   matchSetNum: number
+  score: number | null
+  scoreboard: Scoreboard
   seed: number
   readonly type: 'Init'
 }

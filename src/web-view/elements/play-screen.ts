@@ -12,7 +12,7 @@ declare global {
     'play-screen': PlayScreen
   }
   interface HTMLElementEventMap {
-    'game-over': CustomEvent<undefined>
+    'game-over': CustomEvent<number>
   }
 }
 
@@ -59,10 +59,6 @@ export class PlayScreen extends HTMLElement {
     this.#render()
   }
 
-  set started(time: UTCMillis) {
-    this.#started = time
-  }
-
   connectedCallback(): void {
     this.#frame ??= requestAnimationFrame(this.#onLoop)
   }
@@ -72,9 +68,19 @@ export class PlayScreen extends HTMLElement {
   }
 
   #onLoop = () => {
-    if (utcMillisNow() - this.#started < matchMillis)
+    if (!this.#bag) throw Error('no bag')
+    const now = utcMillisNow()
+    if (now - this.#started < matchMillis)
       this.#frame = requestAnimationFrame(this.#onLoop)
-    else this.dispatchEvent(Bubble('game-over', undefined))
+    else {
+      let bonus = 0
+      if (!this.#bag.missing.length)
+        bonus += Math.max(
+          0,
+          Math.trunc(matchMillis - (now - this.#started) / 1_000)
+        )
+      this.dispatchEvent(Bubble('game-over', this.#score + bonus))
+    }
     this.#render()
   }
 
@@ -86,7 +92,7 @@ export class PlayScreen extends HTMLElement {
     render(
       html`
         <h2>${secs}</h2>
-        <playing-field .bag=${this.#bag}></playing-field>
+        <playing-field .bag=${this.#bag} .score=${this.#score}></playing-field>
         <h2>${this.#score}</h2>
       `,
       this.shadowRoot!

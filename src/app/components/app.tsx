@@ -5,6 +5,7 @@ import {
   AppMessageQueue,
   type WebViewMessage
 } from '../../shared/types/message.js'
+import type {Score, Scoreboard} from '../../shared/types/serial.js'
 import {T2, T3, anonSnoovatarURL, anonUsername} from '../../shared/types/tid.js'
 import {submitNewPost} from '../utils/post.js'
 import {
@@ -16,6 +17,7 @@ import {
   redisMatchUpdate,
   redisPlayerCreate,
   redisPlayerQuery,
+  redisPostLeaderboardQuery,
   redisPostQuery
 } from '../utils/redis.js'
 
@@ -42,16 +44,36 @@ export function App(ctx: Devvit.Context): JSX.Element {
     return [user?.username ?? anonUsername, url ?? anonSnoovatarURL]
   })
 
+  const [scoreboard] = useState<Scoreboard>(async () => {
+    const scores: Score[] = []
+    for await (const score of redisPostLeaderboardQuery(ctx.redis, t3)) {
+      scores.push({
+        player: {
+          name: score.player.name,
+          snoovatarURL: score.player.snoovatarURL,
+          t2: score.player.t2
+        },
+        score: score.match.score
+      })
+      if (scores.length >= 10) break
+    }
+    return {scores}
+  })
+
   const [msgQueue, setMsgQueue] = useState<AppMessageQueue>(
     AppMessageQueue({
       debug,
       matchSetNum: postRecord.matchSetNum,
       p1: {name: username, snoovatarURL, t2},
       score: match?.score ?? null,
+      scoreboard,
       seed: postRecord.seed,
       type: 'Init'
     })
   )
+
+  console.error('match is', match)
+  console.error('scoreboard is', scoreboard)
 
   // function queueMsg(msg: Readonly<NoIDAppMessage>): void {
   //   setMsgQueue(prev => ({

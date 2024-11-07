@@ -8,3 +8,7 @@ export type Profile = {
   /** player user ID. t2_0 for anons. */
   t2: T2
 }
+
+export type Scoreboard = {scores: Score[]}
+
+export type Score = {player: Profile; score: number}

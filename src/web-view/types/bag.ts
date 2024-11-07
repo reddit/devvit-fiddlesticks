@@ -89,7 +89,6 @@ export function Bag(rnd: Random): Bag {
       type
     })
   }
-  console.log(missing)
   return {missing, picked: []}
 }
 
@@ -97,12 +96,7 @@ export function bagPoint(
   bag: Readonly<Bag>,
   xy: Readonly<XY>
 ): Club | undefined {
-  console.log('point', xy)
-  return bag.missing.find((club, i) => {
-    const hit = clubHits(club, xy)
-    if (hit) console.log('hit', i, club)
-    return hit
-  })
+  return bag.missing.find(club => clubHits(club, xy))
 }
 
 function hitboxClub(box: Readonly<RBox>): RBox {
@@ -122,10 +116,7 @@ export function bagPick(bag: Bag, point: Readonly<Club>): number {
       bag.picked.push(bag.missing.splice(i, 1)[0]!)
       return 1
     }
-    if (clubHits(hitbox, hitboxClub(club))) {
-      console.log('blocked by', club, i)
-      return -1
-    }
+    if (clubHits(hitbox, hitboxClub(club))) return -1
   }
   return 0
 }

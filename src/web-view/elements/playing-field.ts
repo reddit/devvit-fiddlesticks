@@ -9,7 +9,7 @@ declare global {
     'playing-field': PlayingField
   }
   interface HTMLElementEventMap {
-    'game-over': CustomEvent<undefined>
+    'game-over': CustomEvent<number>
     point: CustomEvent<number>
   }
 }
@@ -56,6 +56,7 @@ export class PlayingField extends HTMLElement {
 
   #bag: Bag | undefined
   #box: HTMLElement | undefined
+  #score: number = 0
 
   constructor() {
     super()
@@ -68,6 +69,11 @@ export class PlayingField extends HTMLElement {
     this.#render()
   }
 
+  set score(score: number) {
+    this.#score = score
+    this.#render()
+  }
+
   connectedCallback(): void {
     this.#render()
   }
@@ -75,7 +81,6 @@ export class PlayingField extends HTMLElement {
   #onClick = (ev: MouseEvent) => {
     if (!this.#bag || !this.#box) return
     const rect = this.#box.getBoundingClientRect()
-    console.log(rect)
     const x = (ev.clientX - rect.x) / this.#box.clientWidth
     const y = (ev.clientY - rect.y) / this.#box.clientHeight
     const club = bagPoint(this.#bag, {x, y})
@@ -83,7 +88,7 @@ export class PlayingField extends HTMLElement {
     const point = bagPick(this.#bag, club)
     this.dispatchEvent(Bubble('point', point))
     if (!this.#bag.missing.length)
-      this.dispatchEvent(Bubble('game-over', undefined))
+      this.dispatchEvent(Bubble('game-over', this.#score))
   }
 
   #render() {
@@ -101,7 +106,6 @@ export class PlayingField extends HTMLElement {
               "
               src=assets/club-9i.webp
             >`
-      // translate(-50%, -50%)
     )
     render(
       html`<div id=box @click=${this.#onClick}>
