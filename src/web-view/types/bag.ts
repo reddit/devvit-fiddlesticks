@@ -71,8 +71,6 @@ export function Bag(rnd: Random): Bag {
   const types = [
     ...Object.keys(ClubTypeSet),
     ...Object.keys(ClubTypeSet),
-    ...Object.keys(ClubTypeSet),
-    ...Object.keys(ClubTypeSet),
     ...Object.keys(ClubTypeSet)
   ] as ClubType[]
   const missing: Club[] = []

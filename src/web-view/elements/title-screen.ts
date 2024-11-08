@@ -19,44 +19,28 @@ export class TitleScreen extends HTMLElement {
       ${styles}
 
       :host {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: ${spacePx}px;
-  }
+        display: flex;
+        width: calc(100% - ${spacePx}px * 2);
+        height: calc(100% - ${spacePx}px * 2);
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        margin: ${spacePx}px;
+      }
 
-  #logo {
-    max-height: 50%;
-  padding-bottom: 10%;
-}
-#bag {
-  max-height: 25%;
-  margin-bottom: 12px;
-}
+      #logo {
+        max-height: 50%;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
 
-
-img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-#match {
-}
-
-    button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -80%);
-      margin: 0;
-    }
-  `)
+      #match {
+        font-size: 36px;
+        font-weight: 800;
+      }
+   `)
   }
 
   #loaded: boolean = false
@@ -89,9 +73,8 @@ img {
   #render() {
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1354 height=687>
+        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=373>
         ${this.#loaded ? html`<button @click=${this.#onPlay}>play</button>` : undefined}
-        <img alt='golf bag' id=bag src=assets/bag.webp width=534 height=746>
         <span id=match>${this.#loaded ? `match #${this.#matchSetNum}` : html`&nbsp;`}</span>
       `,
       this.shadowRoot!
@@ -100,3 +83,5 @@ img {
 }
 
 customElements.define('title-screen', TitleScreen)
+
+// to-do: parallel playtest and start.

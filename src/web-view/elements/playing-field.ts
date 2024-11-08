@@ -104,7 +104,7 @@ export class PlayingField extends HTMLElement {
                 top: ${club.y * 100}%;
                 transform: translate(-50%, -50%) rotate(${club.rot}rad);
               "
-              src=assets/club-9i.webp
+              src=assets/stick.webp
             >`
     )
     render(

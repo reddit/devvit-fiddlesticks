@@ -1,5 +1,9 @@
 # ⬤◯ [fiddlesticks](https://reddit.com/r/fiddlesticks)
 
+any kind of speed game doesn't work well on android? even bug squisher? how can I better unify canvas renderer and elements?
+
+discovered redis transactions are broken.
+
 I somehow did way too much upfront work on everything, especially Redis. I don't know it was good to get some foundations in but I really didn't like how long it took to get anything drawing and to realize I didn't want to use canvas at all.
 
 

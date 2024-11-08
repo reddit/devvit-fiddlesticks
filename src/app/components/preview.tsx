@@ -9,7 +9,7 @@ export function Preview(): JSX.Element {
       width={'100%'}
       height={'100%'}
       alignment='center middle'
-      backgroundColor='#b3d9a5'
+      backgroundColor='#9ecc8e' //to-do:palette
     >
       <image
         url='loading.gif'

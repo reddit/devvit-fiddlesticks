@@ -24,7 +24,7 @@ export const styles: string = css`
   button {
     white-space: nowrap;
     font-weight: 800;
-    font-size: 48px;
+    font-size: 64px;
     background-color: #ffffcd;
     border-radius: 16px;
     outline: none;

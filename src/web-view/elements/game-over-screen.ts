@@ -1,5 +1,5 @@
 import {type TemplateResult, html, render} from 'lit-html'
-import type {Profile, Score, Scoreboard} from '../../shared/types/serial.js'
+import type {Profile, Scoreboard} from '../../shared/types/serial.js'
 import {Bubble} from '../utils/bubble.js'
 import {spacePx} from '../utils/metrics.js'
 import {css, styles} from './css.js'
@@ -20,42 +20,28 @@ export class GameOverScreen extends HTMLElement {
       ${styles}
 
       :host {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  margin: ${spacePx}px;
-  }
+        display: flex;
+        width: calc(100% - ${spacePx}px * 2);
+        height: calc(100% - ${spacePx}px * 2);
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        margin: ${spacePx}px;
+      }
 
-  #logo {
-    max-height: 50%;
-  padding-bottom: 10%;
-}
-#bag {
-  max-height: 25%;
-  margin-bottom: 12px;
-}
+      #logo {
+        max-height: 50%;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
 
-
-img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-#match {
-}
-
-    button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -80%);
-      margin: 0;
-    }
-  `)
+      #match {
+        font-size: 36px;
+        font-weight: 800;
+      }
+   `)
   }
 
   #matchSetNum: number = 0
@@ -102,13 +88,10 @@ img {
       scoreboard = tweakScoreboard(this.#scoreboard, this.#p1, this.#score)
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1354 height=687>
+        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=373>
         <button @click=${this.#onNewMatch}>new match</button>
-        <img alt='golf bag' id=bag src=assets/bag.webp width=534 height=746>
+        <table>${scoreboard}</table>
         <span id=match>match #${this.#matchSetNum}</span>
-        <table>
-          ${scoreboard}
-        </table>
       `,
       this.shadowRoot!
     )

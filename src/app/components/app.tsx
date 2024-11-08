@@ -72,9 +72,6 @@ export function App(ctx: Devvit.Context): JSX.Element {
     })
   )
 
-  console.error('match is', match)
-  console.error('scoreboard is', scoreboard)
-
   // function queueMsg(msg: Readonly<NoIDAppMessage>): void {
   //   setMsgQueue(prev => ({
   //     id: prev.id + 1,
