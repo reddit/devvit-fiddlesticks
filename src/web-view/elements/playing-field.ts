@@ -2,6 +2,7 @@ import {html, render} from 'lit-html'
 import {repeat} from 'lit-html/directives/repeat.js'
 import {type Bag, bagPick, bagPoint} from '../types/bag.js'
 import {Bubble} from '../utils/bubble.js'
+import type {spacePx} from '../utils/metrics.js'
 import {css, styles} from './css.js'
 
 declare global {
@@ -26,7 +27,6 @@ export class PlayingField extends HTMLElement {
         display: flex;
         width: 100%;
         height: 100%;
-        padding: 80px;
         cursor: pointer;
       }
 
@@ -79,6 +79,9 @@ export class PlayingField extends HTMLElement {
   }
 
   #onClick = (ev: MouseEvent) => {
+    ev.preventDefault()
+    ev.stopImmediatePropagation()
+    ev.stopPropagation()
     if (!this.#bag || !this.#box) return
     const rect = this.#box.getBoundingClientRect()
     const x = (ev.clientX - rect.x) / this.#box.clientWidth

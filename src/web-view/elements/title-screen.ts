@@ -20,15 +20,17 @@ export class TitleScreen extends HTMLElement {
 
       :host {
         display: flex;
-        width: calc(100% - ${spacePx}px * 2);
-        height: calc(100% - ${spacePx}px * 2);
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
+        width: calc(100% - ${spacePx}px * 2);
+        height: calc(100% - ${spacePx}px * 2);
         margin: ${spacePx}px;
       }
 
+
       #logo {
+        margin-top: ${spacePx * 2}px;
         max-height: 50%;
         max-width: 100%;
         width: auto;
@@ -73,7 +75,7 @@ export class TitleScreen extends HTMLElement {
   #render() {
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=373>
+        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=335>
         ${this.#loaded ? html`<button @click=${this.#onPlay}>play</button>` : undefined}
         <span id=match>${this.#loaded ? `match #${this.#matchSetNum}` : html`&nbsp;`}</span>
       `,

@@ -33,17 +33,19 @@ const ClubTypeSet: {readonly [club in ClubType]: true} = {
   PW: true,
   SW: true
 }
-const imgWH: Readonly<WH> = {w: 46, h: 909}
+const imgWH: Readonly<WH> = {w: 180, h: 909}
+const hwRatio = imgWH.w / imgWH.h
 const scaledImgWH: Readonly<WH> = {
-  w: (0.8 * imgWH.w) / imgWH.h,
+  w: 0.8 * hwRatio,
   h: 0.8
 }
+
 type Box = WH & XY
-const hitbox: Readonly<Box> = {x: 9, y: 10, w: 28, h: 888}
+const hitbox: Readonly<Box> = {x: 6, y: 16, w: 169, h: 877}
 const scaledHitbox: Readonly<Box> = {
-  x: (0.8 * hitbox.x) / imgWH.h,
-  y: 0.8 * hitbox.y,
-  w: (0.8 * hitbox.w) / imgWH.h,
+  x: (0.8 * hitbox.x * hwRatio) / imgWH.w,
+  y: (0.8 * hitbox.y) / imgWH.h,
+  w: (0.8 * hitbox.w * hwRatio) / imgWH.w,
   h: (0.8 * hitbox.h) / imgWH.h
 }
 
@@ -71,6 +73,11 @@ export function Bag(rnd: Random): Bag {
   const types = [
     ...Object.keys(ClubTypeSet),
     ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
+    ...Object.keys(ClubTypeSet),
     ...Object.keys(ClubTypeSet)
   ] as ClubType[]
   const missing: Club[] = []
@@ -79,8 +86,8 @@ export function Bag(rnd: Random): Bag {
     const type = types.splice(Math.trunc(rnd.num * types.length), 1)[0]!
     missing.push({
       id: id++,
-      x: rnd.num,
-      y: rnd.num,
+      x: 0.3 + rnd.num * 0.4,
+      y: 0.3 + rnd.num * 0.4,
       w: scaledImgWH.w,
       h: scaledImgWH.h,
       rot: rnd.num * 2 * Math.PI,
@@ -102,7 +109,7 @@ function hitboxClub(box: Readonly<RBox>): RBox {
     x: box.x + scaledHitbox.x,
     y: box.y + scaledHitbox.y,
     w: scaledHitbox.w,
-    h: scaledImgWH.h,
+    h: scaledHitbox.h,
     rot: box.rot
   }
 }

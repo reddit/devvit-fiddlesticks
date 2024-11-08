@@ -12,7 +12,7 @@ import {anonSnoovatarURL, anonUsername, noT2} from '../../shared/types/tid.js'
 import type {UTCMillis} from '../../shared/types/time.js'
 import type {Audio} from '../types/audio.js'
 import {Bag} from '../types/bag.js'
-import {styles} from './css.js'
+import {css, styles} from './css.js'
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -23,16 +23,15 @@ declare global {
 export class App extends HTMLElement {
   static #styles: CSSStyleSheet = new CSSStyleSheet()
   static {
-    this.#styles.replace(`
+    this.#styles.replace(css`
       ${styles}
       :host {
-display: flex;
-width: 100%;
-      height: 100%;
+        width: 100%;
+        height: 100%;
         user-select: none;
-
-        }
-      `)
+        touch-action: none;
+      }
+    `)
   }
 
   // player clicks new game to create new post.
@@ -160,7 +159,7 @@ width: 100%;
   }
 
   #postMessage(msg: NoIDWebViewMessage): void {
-    parent.postMessage({...msg, id: this.#msgID}, document.referrer)
+    parent.postMessage({...msg, id: this.#msgID}, document.referrer || '*')
   }
 
   #render(template: TemplateResult): void {

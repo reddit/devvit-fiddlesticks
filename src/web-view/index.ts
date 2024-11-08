@@ -1,18 +1,28 @@
 import {AppMessageQueue} from '../shared/types/message.js'
 import {randomEndSeed} from '../shared/types/random.js'
-import {anonSnoovatarURL, anonUsername, noT2} from '../shared/types/tid.js'
 import './elements/app.js'
 
-const noApp = location.port === '1234'
+document
+  .querySelector('body')
+  ?.addEventListener('contextmenu', ev => ev.preventDefault())
+document
+  .querySelector('body')
+  ?.addEventListener('click', ev => ev.preventDefault())
+document
+  .querySelector('body')
+  ?.addEventListener('pointerdown', ev => ev.preventDefault())
+
+const noBlocks = location.port === '1234'
 const app = document.querySelector('app-el')
 
-if (noApp) {
+if (noBlocks) {
   const delay = Math.random() * 1_000
   const seed = Date.now() % randomEndSeed
   // const seed = 119016656
   // const seed = 121348560
   // const seed = 125477185
   // const seed = 133689028
+  // const seed = 169064946
   console.log(`delay=${delay} seed=${seed}`)
   setTimeout(
     () =>
@@ -34,6 +44,105 @@ if (noApp) {
                 score: null,
                 scoreboard: {
                   scores: [
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
+                    {
+                      player: {
+                        name: 'pizzaoid',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_hbbuxlhe5'
+                      },
+                      score: 13
+                    },
                     {
                       player: {
                         name: 'pizzaoid',

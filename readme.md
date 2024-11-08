@@ -1,5 +1,9 @@
 # ⬤◯ [fiddlesticks](https://reddit.com/r/fiddlesticks)
 
+hard to know when to be more organic. when to embrace the constraints or buck them.
+
+DOM added a layer of indirection that was flexible but hard to reason about for collision detection.
+
 any kind of speed game doesn't work well on android? even bug squisher? how can I better unify canvas renderer and elements?
 
 discovered redis transactions are broken.

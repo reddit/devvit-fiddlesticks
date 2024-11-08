@@ -23,6 +23,7 @@ export class GameOverScreen extends HTMLElement {
         display: flex;
         width: calc(100% - ${spacePx}px * 2);
         height: calc(100% - ${spacePx}px * 2);
+        max-height: calc(100% - ${spacePx}px * 2);
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
@@ -40,6 +41,23 @@ export class GameOverScreen extends HTMLElement {
       #match {
         font-size: 36px;
         font-weight: 800;
+      }
+
+      #box {
+        flex-basis: auto;
+        overflow-y: auto;
+      }
+
+      td {
+        padding: 0 ${spacePx}px;
+      }
+
+      .snoovatar {
+        max-height: 64px;
+        max-width: 64px;
+        width: auto;
+        height: 64px;
+        object-fit: contain;
       }
    `)
   }
@@ -88,9 +106,9 @@ export class GameOverScreen extends HTMLElement {
       scoreboard = tweakScoreboard(this.#scoreboard, this.#p1, this.#score)
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=373>
+        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=335>
         <button @click=${this.#onNewMatch}>new match</button>
-        <table>${scoreboard}</table>
+        <div id=box><table>${scoreboard}</table></div>
         <span id=match>match #${this.#matchSetNum}</span>
       `,
       this.shadowRoot!
@@ -110,13 +128,26 @@ function tweakScoreboard(
   for (const score of scoreboard.scores) {
     p1Present ||= p1.t2 === score.player.t2
     rows.push(
-      html`<tr><td>${score.player.name}</td><td>${score.score}</td></tr>`
+      // to-do: bold player
+      html`<tr><td><img class=snoovatar src='${score.player.snoovatarURL}'></td><td>${score.player.name}</td><td>${score.score}</td></tr>`
     )
   }
   if (!p1Present) {
-    if (score >= (scoreboard.scores[0]?.score ?? 0))
-      rows.unshift(html`<tr><td>${p1.name}</td><td>${score}</td></tr>`)
-    else rows.push(html`<tr><td>${p1.name}</td><td>${score}</td></tr>`)
+    for (let i = 0; i < scoreboard.scores.length; i++) {
+      if (score >= scoreboard.scores[i]!.score) {
+        rows.splice(
+          i,
+          0,
+          html`<tr><td><img class=snoovatar src='${p1.snoovatarURL}'></td><td>${p1.name}</td><td>${score}</td></tr>`
+        )
+        p1Present = true
+        break
+      }
+    }
+    if (!p1Present)
+      rows.push(
+        html`<tr><td><img class=snoovatar src='${p1.snoovatarURL}'></td><td>${p1.name}</td><td>${score}</td></tr>`
+      )
   }
   return rows
 }

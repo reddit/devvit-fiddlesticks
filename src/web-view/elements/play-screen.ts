@@ -24,17 +24,27 @@ export class PlayScreen extends HTMLElement {
 
       :host {
         display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: space-between;
         width: 100%;
         height: 100%;
-        margin: ${spacePx}px;
       }
+      
+      .status {
+        font-size: 64px;
+        font-weight: 800;
+        z-index: 1;
+        text-shadow: 
+          8px  8px 0 white,
+        -8px  8px 0 white,
+          8px -8px 0 white,
+        -8px -8px 0 white;
+       }
 
-      playing-field {
+       playing-field {
         position: absolute;
-        top: ${spacePx};
-        width: calc(100% - 2 * ${spacePx}px);
-        height: calc(100% - 2 * ${spacePx}px);
-      }
+       }
   `)
   }
 
@@ -91,9 +101,9 @@ export class PlayScreen extends HTMLElement {
     )
     render(
       html`
-        <h2>${secs}</h2>
+        <span class=status>${secs}</span>
         <playing-field .bag=${this.#bag} .score=${this.#score}></playing-field>
-        <h2>${this.#score}</h2>
+        <span class=status>${this.#score}</span>
       `,
       this.shadowRoot!
     )

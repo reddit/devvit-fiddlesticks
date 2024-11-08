@@ -9,6 +9,9 @@ export const styles: string = css`
     font-family: 'Item Regular';
     font-size: 24px;
     color: ${paletteBlack};
+
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
   }
 
   button {
