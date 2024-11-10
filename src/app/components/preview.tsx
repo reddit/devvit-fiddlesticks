@@ -1,15 +1,18 @@
 import {Devvit} from '@devvit/public-api'
+import {paletteGreen} from '../../shared/types/palette.ts'
 
 export const previewVersion: number = 0
 
 export function Preview(): JSX.Element {
+  // to-do: get initial state here so the seed style is correct.
+  // hack: no way to pass initial state from preview to app.
   // to-do: this should be a golf bag silhouette or tiled pattern.
   return (
     <vstack
       width={'100%'}
       height={'100%'}
       alignment='center middle'
-      backgroundColor='#9ecc8e' //to-do:palette
+      backgroundColor={paletteGreen}
     >
       <image
         url='loading.gif'

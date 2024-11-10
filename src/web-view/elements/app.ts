@@ -41,12 +41,15 @@ export class App extends HTMLElement {
   // player game overs and updates play record (or not); either way game cannot
   // be replayed.
 
-  // readonly audio: Audio = Audio()
+  readonly #audio: Audio = {ctx: new AudioContext()}
   #bag: Bag | undefined
+  #color: number = 0
   #debug: boolean = false
   #matchSetNum: number = 0
   #msgID: number = 0
   #p1: Profile = {name: anonUsername, snoovatarURL: anonSnoovatarURL, t2: noT2}
+  #played: boolean = false
+  #postMatchCnt: number = 0
   #rnd: Random | undefined
   #score: number = 0
   #scoreboard: Scoreboard = {scores: []}
@@ -69,6 +72,7 @@ export class App extends HTMLElement {
   }
 
   #onGameOver(ev: CustomEvent<UTCMillis>): void {
+    this.#played = true
     this.#score = ev.detail
     this.#state = 'Unplayable'
     this.#postMessage({type: 'GameOver', score: this.#score})
@@ -83,6 +87,8 @@ export class App extends HTMLElement {
   }
 
   #onPlay(): void {
+    if (this.#audio?.ctx.state !== 'running') void this.#audio?.ctx.resume() // don't await; this can hang.
+
     this.#state = 'Playing'
     // this.#started = utcMillisNow()
     this.#postMessage({type: 'Play'})
@@ -100,20 +106,37 @@ export class App extends HTMLElement {
       case 'Playable':
         this.#render(
           html`<title-screen
-          .loaded=${this.#state === 'Playable'}
-          .matchSetNum=${this.#matchSetNum}
-          @play='${this.#onPlay}'
-        ></title-screen>`
+            .color=${this.#color}
+            .loaded=${this.#state === 'Playable'}
+            .matchSetNum=${this.#matchSetNum}
+            .postMatchCnt=${this.#postMatchCnt}
+            @play='${this.#onPlay}'
+          ></title-screen>`
         )
         break
       case 'Playing':
         this.#render(
-          html`<play-screen .bag=${this.#bag} .score=${this.#score} @game-over=${this.#onGameOver} @point=${this.#onPoint}></play-screen>`
+          html`<play-screen
+            .audio=${this.#audio}
+            .bag=${this.#bag}
+            .score=${this.#score}
+            @game-over=${this.#onGameOver}
+            @point=${this.#onPoint}
+          ></play-screen>`
         )
         break
       case 'Unplayable':
         this.#render(
-          html`<game-over-screen .matchSetNum=${this.#matchSetNum} .p1=${this.#p1} .score=${this.#score} .scoreboard=${this.#scoreboard} @new-game=${this.#onNewGame}></game-over-screen>`
+          html`<game-over-screen
+            .color=${this.#color}
+            .matchSetNum=${this.#matchSetNum}
+            @new-game=${this.#onNewGame}
+            .p1=${this.#p1}
+            .played=${this.#played}
+            .postMatchCnt=${this.#postMatchCnt}
+            .score=${this.#score}
+            .scoreboard=${this.#scoreboard}
+          ></game-over-screen>`
         )
         break
       default:
@@ -139,12 +162,15 @@ export class App extends HTMLElement {
       switch (msg.type) {
         case 'Init':
           this.#rnd = new Random(msg.seed)
+          // use the seed right away for deterministic parts.
           this.#bag = Bag(this.#rnd)
+          this.#color = this.#rnd.num * 360
           this.#debug = msg.debug
           this.#matchSetNum = msg.matchSetNum
           this.#p1.t2 = msg.p1.t2
           this.#p1.name = msg.p1.name
           this.#p1.snoovatarURL = msg.p1.snoovatarURL
+          this.#postMatchCnt = msg.postMatchCnt
           this.#score = msg.score ?? 0
           this.#scoreboard = msg.scoreboard
           this.#state = msg.score == null ? 'Playable' : 'Unplayable'

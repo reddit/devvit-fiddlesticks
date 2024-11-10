@@ -30,6 +30,12 @@ export class GameOverScreen extends HTMLElement {
         margin: ${spacePx}px;
       }
 
+      #info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
       #logo {
         max-height: 50%;
         max-width: 100%;
@@ -62,8 +68,12 @@ export class GameOverScreen extends HTMLElement {
    `)
   }
 
+  played: boolean = false
+  #color: number = 0
+  #disabled: boolean = true
   #matchSetNum: number = 0
   #p1: Readonly<Profile> | undefined
+  #postMatchCnt: number = 0
   #score: number = 0
   #scoreboard: Readonly<Scoreboard> | undefined
 
@@ -73,6 +83,21 @@ export class GameOverScreen extends HTMLElement {
     this.shadowRoot!.adoptedStyleSheets.push(GameOverScreen.#styles)
   }
 
+  set color(color: number) {
+    this.#color = color
+    this.#render()
+  }
+
+  connectedCallback(): void {
+    if (this.played)
+      setTimeout(() => {
+        this.#disabled = false
+        this.#render()
+      }, 3_000)
+    else this.#disabled = false
+    this.#render()
+  }
+
   set matchSetNum(match: number) {
     this.#matchSetNum = match
     this.#render()
@@ -80,6 +105,11 @@ export class GameOverScreen extends HTMLElement {
 
   set p1(p1: Readonly<Profile>) {
     this.#p1 = p1
+  }
+
+  set postMatchCnt(cnt: number) {
+    this.#postMatchCnt = cnt
+    this.#render()
   }
 
   set score(score: number) {
@@ -96,20 +126,19 @@ export class GameOverScreen extends HTMLElement {
     this.dispatchEvent(Bubble('new-game', undefined))
   }
 
-  connectedCallback(): void {
-    this.#render()
-  }
-
   #render() {
     let scoreboard
     if (this.#scoreboard && this.#p1)
       scoreboard = tweakScoreboard(this.#scoreboard, this.#p1, this.#score)
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=335>
-        <button @click=${this.#onNewMatch}>new match</button>
+        <img alt=fiddlesticks id=logo src=assets/logo.webp style='filter: hue-rotate(${this.#color}deg)' width=1242 height=335>
+        <button ?disabled=${this.#disabled} @click=${this.#onNewMatch}>new match</button>
         <div id=box><table>${scoreboard}</table></div>
-        <span id=match>match #${this.#matchSetNum}</span>
+        <div id=info>
+          <div id=match>match #${this.#matchSetNum}</div>
+          <div>${this.#postMatchCnt + 1} players</div>
+        </div>
       `,
       this.shadowRoot!
     )

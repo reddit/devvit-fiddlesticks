@@ -7,6 +7,9 @@ import {previewVersion} from '../components/preview.js'
 
 /** records are as independent and immutable as possible. */
 
+// to-do: explore a postRedis() API that can be driven by the web view. how to
+//        do batching efficiently to avoid many circuit breaks?
+
 // to-do: use serial from corridor.
 
 export type PlayerRecord = {
@@ -156,7 +159,8 @@ export async function redisMatchUpdate(
   const t3t2 = T3T2(match.t3, match.t2)
   const t3T2ScoreZByT3Key = t3T2ScoreZByT3KeyTemplate.replace('{t3}', match.t3)
   const t3T2ScoreZByT2Key = t3T2ScoreZByT2KeyTemplate.replace('{t2}', match.t2)
-  // to-do: only allow one update.
+  // to-do: only allow one update. this would prevent users from cheating by
+  //        opening multiple tabs simultaneously.
   // const tx = await redis.watch()
   // await tx.multi()
   await Promise.all([
@@ -306,16 +310,22 @@ export async function* redisPostLeaderboardQuery(
     t3T2ScoreZByT3Key,
     start,
     end,
-    {
-      by: 'score',
-      reverse: true
-    }
+    {by: 'score', reverse: true}
   )) {
+    // this could be hGetAll() but data could be big.
     const match = await redisMatchQuery(redis, t3t2 as T3T2)
     if (!match) continue
     const player = await redisPlayerQuery(redis, match.t2)
     if (player) yield {match, player}
   }
+}
+
+export async function redisPostMatchCountQuery(
+  redis: RedisClient,
+  t3: T3
+): Promise<number> {
+  const t3T2CreatedZByT3Key = t3T2CreatedZByT3KeyTemplate.replace('{t3}', t3)
+  return redis.zCard(t3T2CreatedZByT3Key)
 }
 
 export async function* redisPostMatchesByCreationQuery(
@@ -407,6 +417,6 @@ export async function redisSubPlayerCountQuery(
   return await redis.zCard(playerByT2Key)
 }
 
-function T3T2(t3: T3, t2: T2): T3T2 {
+export function T3T2(t3: T3, t2: T2): T3T2 {
   return `${t3}_${t2}`
 }

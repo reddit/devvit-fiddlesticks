@@ -1,5 +1,5 @@
-import {describe, expect, it, test} from 'vitest'
-import {type RBox, rboxHits, xyAngleBetween, xyDot, xyMagnitude} from './2d.js'
+import {describe, expect, test} from 'vitest'
+import {rboxHits, xyAngleBetween, xyDot, xyMagnitude} from './2d.js'
 
 describe('xyDot()', () => {
   test('v · v', () => {

@@ -1,5 +1,5 @@
+import {paletteBlack, paletteWhite} from '../../shared/types/palette.js'
 import {halfSpacePx, quarterSpacePx, spacePx} from '../utils/metrics.js'
-import {paletteBlack, paletteWhite} from '../utils/palette.js'
 
 export const styles: string = css`
   *,
@@ -27,7 +27,7 @@ export const styles: string = css`
   button {
     white-space: nowrap;
     font-weight: 800;
-    font-size: 64px;
+    font-size: 56px;
     background-color: #ffffcd;
     border-radius: 16px;
     outline: none;
@@ -35,38 +35,38 @@ export const styles: string = css`
     transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
     border: 8px solid #2c2c2c;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-}
+  }
 
-button:hover {
+  button:hover {
     background-color: #fffde0;
     border-color: #d68b00;
-}
+  }
 
-button:focus {
+  button:focus {
     background-color: #ffffe6;
     box-shadow: 0px 0px 6px 3px rgba(44, 44, 44, 0.3);
     border-color: #757575;
-}
+  }
 
-button:active {
+  button:active {
     background-color: #fffacd;
     border-color: ${paletteWhite};
     box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.2);
-}
+  }
 
-button:disabled {
+  button:disabled {
     background-color: #f2f2e6;
     color: #999999;
     border-color: #cccccc;
     cursor: not-allowed;
     box-shadow: none;
     opacity: 0.5;
-}
+  }
 
-img {
-  -webkit-user-drag: none;
-        user-drag: none;
-}
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
 `
 
 // hack: enable syntax highlighting. I couldn't get `/*css*/` to work.

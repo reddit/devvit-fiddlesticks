@@ -7,7 +7,7 @@ export async function submitNewPost(ctx: Context | JobContext): Promise<void> {
 
   const matchSetNum = await redisPostCountInc(ctx.redis)
 
-  // requires special permisoin to potst as user
+  // requires special permission: post as viewer.
   const post = await ctx.reddit.submitPost({
     preview: <Preview />,
     subredditName: ctx.subredditName,

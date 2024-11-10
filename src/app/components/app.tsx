@@ -1,50 +1,49 @@
 // biome-ignore lint/style/useImportType: Devvit is a functional dependency of JSX.
 import {Devvit} from '@devvit/public-api'
-import {type JSONObject, useState} from '@devvit/public-api'
+import type {JSONObject} from '@devvit/public-api'
 import {
   AppMessageQueue,
   type WebViewMessage
 } from '../../shared/types/message.js'
-import type {Score, Scoreboard} from '../../shared/types/serial.js'
+import type {Score} from '../../shared/types/serial.js'
 import {T2, T3, anonSnoovatarURL, anonUsername} from '../../shared/types/tid.js'
 import {submitNewPost} from '../utils/post.js'
 import {
-  type MatchRecord,
-  type PlayerRecord,
-  type PostRecord,
+  T3T2,
   redisMatchCreate,
   redisMatchQuery,
   redisMatchUpdate,
   redisPlayerCreate,
   redisPlayerQuery,
   redisPostLeaderboardQuery,
+  redisPostMatchCountQuery,
   redisPostQuery
 } from '../utils/redis.js'
+import {useState2} from '../utils/use-state2.js'
 
 export function App(ctx: Devvit.Context): JSX.Element {
   if (!ctx.postId) throw Error('no post ID')
   if (!ctx.userId) throw Error('no user ID')
-  const debug = 'fiddlesticks' in ctx.debug
-  const t2 = T2(ctx.userId) // hack: this should be a T2 falling back to t2_0.
+  const t2 = T2(ctx.userId) // hack: these should be T2/3 or T2/3|undefined.
   const t3 = T3(ctx.postId)
-  const [match, setMatch] = useState<MatchRecord | null>(
-    async () => (await redisMatchQuery(ctx.redis, `${t3}_${t2}`)) ?? null
+  const debug = 'fiddlesticks' in ctx.debug
+  const [match, setMatch] = useState2(() =>
+    redisMatchQuery(ctx.redis, T3T2(t3, t2))
   )
-  const [postRecord] = useState<PostRecord | null>(
-    async () => (await redisPostQuery(ctx.redis, t3)) ?? null
-  )
+  const [postRecord] = useState2(() => redisPostQuery(ctx.redis, t3))
   if (!postRecord) throw Error('no post record')
-  const [player, setPlayer] = useState<PlayerRecord | null>(
-    async () => (await redisPlayerQuery(ctx.redis, t2)) ?? null
-  )
+  const [player, setPlayer] = useState2(() => redisPlayerQuery(ctx.redis, t2))
 
-  const [[username, snoovatarURL]] = useState<[string, string]>(async () => {
+  const [postMatchCnt] = useState2(() =>
+    redisPostMatchCountQuery(ctx.redis, t3)
+  )
+  const [[username, snoovatarURL]] = useState2<[string, string]>(async () => {
     const user = await ctx.reddit.getCurrentUser()
     const url = await user?.getSnoovatarUrl()
     return [user?.username ?? anonUsername, url ?? anonSnoovatarURL]
   })
 
-  const [scoreboard] = useState<Scoreboard>(async () => {
+  const [scoreboard] = useState2(async () => {
     const scores: Score[] = []
     for await (const score of redisPostLeaderboardQuery(ctx.redis, t3)) {
       scores.push({
@@ -60,11 +59,12 @@ export function App(ctx: Devvit.Context): JSX.Element {
     return {scores}
   })
 
-  const [msgQueue, setMsgQueue] = useState<AppMessageQueue>(
+  const [msgQueue, setMsgQueue] = useState2(
     AppMessageQueue({
       debug,
       matchSetNum: postRecord.matchSetNum,
       p1: {name: username, snoovatarURL, t2},
+      postMatchCnt,
       score: match?.score ?? null,
       scoreboard,
       seed: postRecord.seed,

@@ -2,10 +2,11 @@ import {html, render} from 'lit-html'
 import {type UTCMillis, utcMillisNow} from '../../shared/types/time.js'
 import type {Bag} from '../types/bag.js'
 import {Bubble} from '../utils/bubble.js'
-import {matchMillis, spacePx} from '../utils/metrics.js'
+import {matchMillis, quarterSpacePx, spacePx} from '../utils/metrics.js'
 import {css, styles} from './css.js'
 
 import './playing-field.js'
+import type {Audio} from '../types/audio.js'
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -30,24 +31,32 @@ export class PlayScreen extends HTMLElement {
         width: 100%;
         height: 100%;
       }
+
+      .info {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        z-index: 1;
+        line-height: 1;
+        background-color: white;
+        border-radius: ${spacePx}px;
+        width: 128px;
+        padding: ${quarterSpacePx}px;
+        margin: ${quarterSpacePx}px;
+      }
       
       .status {
         font-size: 64px;
         font-weight: 800;
-        z-index: 1;
-        text-shadow: 
-          8px  8px 0 white,
-        -8px  8px 0 white,
-          8px -8px 0 white,
-        -8px -8px 0 white;
        }
 
-       playing-field {
+      playing-field {
         position: absolute;
-       }
+      }
   `)
   }
 
+  audio: Audio | undefined
   #bag: Bag | undefined
   #frame: number | undefined
   #score: number = 0
@@ -101,9 +110,15 @@ export class PlayScreen extends HTMLElement {
     )
     render(
       html`
-        <span class=status>${secs}</span>
-        <playing-field .bag=${this.#bag} .score=${this.#score}></playing-field>
-        <span class=status>${this.#score}</span>
+        <div class=info>
+          <div>timer</div>
+          <div class=status>${secs}</div>
+        </div>
+        <playing-field .audio=${this.audio} .bag=${this.#bag} .score=${this.#score}></playing-field>
+        <div class=info>
+          <div class=status>${this.#score}</div>
+          <div>score</div>
+        </div>
       `,
       this.shadowRoot!
     )

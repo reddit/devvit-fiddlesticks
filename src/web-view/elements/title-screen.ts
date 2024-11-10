@@ -28,6 +28,11 @@ export class TitleScreen extends HTMLElement {
         margin: ${spacePx}px;
       }
 
+      .group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
       #logo {
         margin-top: ${spacePx * 2}px;
@@ -45,8 +50,10 @@ export class TitleScreen extends HTMLElement {
    `)
   }
 
+  #color: number = 0
   #loaded: boolean = false
   #matchSetNum: number = 0
+  #postMatchCnt: number = 0
 
   constructor() {
     super()
@@ -64,6 +71,16 @@ export class TitleScreen extends HTMLElement {
     this.#render()
   }
 
+  set color(color: number) {
+    this.#color = color
+    this.#render()
+  }
+
+  set postMatchCnt(cnt: number) {
+    this.#postMatchCnt = cnt
+    this.#render()
+  }
+
   #onPlay(): void {
     this.dispatchEvent(Bubble('play', undefined))
   }
@@ -75,9 +92,15 @@ export class TitleScreen extends HTMLElement {
   #render() {
     render(
       html`
-        <img alt=fiddlesticks id=logo src=assets/logo.webp width=1242 height=335>
+        <div class=group>
+          <img alt=fiddlesticks id=logo src=assets/logo.webp style='filter: hue-rotate(${this.#color}deg)' width=1242 height=335>
+          pick up sticks from top to bottom
+        </div>
         ${this.#loaded ? html`<button @click=${this.#onPlay}>play</button>` : undefined}
-        <span id=match>${this.#loaded ? `match #${this.#matchSetNum}` : html`&nbsp;`}</span>
+        <div class=group>
+          <div id=match>${this.#loaded ? `match #${this.#matchSetNum}` : html`&nbsp;`}</div>
+          <div>${this.#postMatchCnt ? `${this.#postMatchCnt} players` : html`&nbsp;`}</div>
+        </div>
       `,
       this.shadowRoot!
     )

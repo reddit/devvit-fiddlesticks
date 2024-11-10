@@ -1,17 +1,15 @@
-import type {Assets} from './assets.js'
-
 export type Audio = {
   ctx: AudioContext
   // instruments: {[instrument in Instrument]: AudioBuffer}
 }
 
-export async function Audio(_assets: Readonly<Assets>): Promise<Audio> {
-  const ctx = new AudioContext()
-  // const [Bubbler] = await Promise.all([
-  //   ctx.decodeAudioData(assets.audio.Bubbler),
-  // ])
-  return {ctx}
-}
+// export async function Audio(_assets: Readonly<Assets>): Promise<Audio> {
+//   const ctx = new AudioContext()
+//   // const [Bubbler] = await Promise.all([
+//   //   ctx.decodeAudioData(assets.audio.Bubbler),
+//   // ])
+//   return {ctx}
+// }
 
 export function playBuffer(
   ctx: AudioContext,

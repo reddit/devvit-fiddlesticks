@@ -37,6 +37,7 @@ export type InitAppMessage = {
   debug: boolean
   p1: Profile
   matchSetNum: number
+  postMatchCnt: number
   score: number | null
   scoreboard: Scoreboard
   seed: number

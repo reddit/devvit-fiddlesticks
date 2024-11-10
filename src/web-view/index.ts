@@ -41,107 +41,36 @@ if (noBlocks) {
                     'https://i.redd.it/snoovatar/avatars/d87d7eb2-f063-424a-8e30-f02e3347ef0e.png',
                   t2: 't2_reyi3nllt'
                 },
+                postMatchCnt: 456,
                 score: null,
                 scoreboard: {
                   scores: [
                     {
                       player: {
-                        name: 'pizzaoid',
+                        name: 'ChatGPTTookMyJob',
                         snoovatarURL:
                           'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
+                        t2: 't2_vw5x123d'
                       },
-                      score: 13
+                      score: 52
                     },
                     {
                       player: {
-                        name: 'pizzaoid',
+                        name: 'FlyingLaserTurtle',
                         snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
+                          'https://i.redd.it/snoovatar/avatars/84cd9efa-8cef-4bf1-bfb0-f774c4295a8f.png',
+                        t2: 't2_t1mxkn9d'
                       },
-                      score: 13
+                      score: 45
                     },
                     {
                       player: {
-                        name: 'pizzaoid',
+                        name: 'neuralspikes',
                         snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
+                          'https://i.redd.it/snoovatar/avatars/a8d67e91-64a2-48ed-98b1-85bdd9d61d13.png',
+                        t2: 't2_uxu53cio'
                       },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
-                    },
-                    {
-                      player: {
-                        name: 'pizzaoid',
-                        snoovatarURL:
-                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
-                        t2: 't2_hbbuxlhe5'
-                      },
-                      score: 13
+                      score: 29
                     },
                     {
                       player: {
@@ -160,6 +89,42 @@ if (noBlocks) {
                         t2: 't2_k6ldbjh3'
                       },
                       score: 12
+                    },
+                    {
+                      player: {
+                        name: 'cedaraspen',
+                        snoovatarURL:
+                          'https://i.redd.it/snoovatar/avatars/nftv2_bmZ0X2VpcDE1NToxMzdfNjIyZDhmZWE0NjAzYmE5ZWRhZjEwODRiNDA3MDUyZDhiMGE5YmVkN18yOTI4NDYx_rare_424c56f3-a85d-43c2-a088-6384955555a1.png',
+                        t2: 't2_mdn67zkp'
+                      },
+                      score: 10
+                    },
+                    {
+                      player: {
+                        name: 'Oppdager',
+                        snoovatarURL:
+                          'https://i.redd.it/snoovatar/avatars/985f6cf8-1304-4dbf-8569-0a93ba7021ef.png',
+                        t2: 't2_7u315kgs'
+                      },
+                      score: 3
+                    },
+                    {
+                      player: {
+                        name: 'Minimum_Solid7428',
+                        snoovatarURL:
+                          'https://www.redditstatic.com/shreddit/assets/thinking-snoo.png',
+                        t2: 't2_1bgenlvxgq'
+                      },
+                      score: 3
+                    },
+                    {
+                      player: {
+                        name: 'youngluck',
+                        snoovatarURL:
+                          'https://i.redd.it/snoovatar/avatars/35b99d7e-7935-42d6-9281-7a8f5bd6d093.png',
+                        t2: 't2_3kh50'
+                      },
+                      score: -1
                     }
                   ]
                 },

@@ -1,4 +1,4 @@
-import {clamp, closeTo} from '../utils/math.js'
+import {clamp, closeTo} from '../utils/math.ts'
 
 export type RBox = XY &
   WH & {
