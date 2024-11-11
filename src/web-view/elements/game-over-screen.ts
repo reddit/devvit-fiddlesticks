@@ -21,13 +21,13 @@ export class GameOverScreen extends HTMLElement {
 
       :host {
         display: flex;
-        width: calc(100% - ${spacePx}px * 2);
-        height: calc(100% - ${spacePx}px * 2);
-        max-height: calc(100% - ${spacePx}px * 2);
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
+        width: calc(100% - ${spacePx}px * 2);
+        height: calc(100% - ${spacePx}px * 2);
         margin: ${spacePx}px;
+        max-height: calc(100% - ${spacePx}px * 2);
       }
 
       #info {
@@ -37,7 +37,8 @@ export class GameOverScreen extends HTMLElement {
       }
 
       #logo {
-        max-height: 50%;
+        margin-top: ${spacePx * 2}px;
+        max-height: min(50%, 123.65px);
         max-width: 100%;
         width: auto;
         height: auto;

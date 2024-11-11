@@ -26,6 +26,7 @@ export class TitleScreen extends HTMLElement {
         width: calc(100% - ${spacePx}px * 2);
         height: calc(100% - ${spacePx}px * 2);
         margin: ${spacePx}px;
+        max-height: calc(100% - ${spacePx}px * 2);
       }
 
       .group {
