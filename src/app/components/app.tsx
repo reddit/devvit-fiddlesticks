@@ -102,7 +102,7 @@ export function App(ctx: Devvit.Context): JSX.Element {
         break
 
       case 'NewGame':
-        await submitNewPost(ctx)
+        await submitNewPost(ctx, true)
         break
 
       case 'Play':

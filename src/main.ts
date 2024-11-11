@@ -16,7 +16,7 @@ Devvit.addCustomPostType({name: 'Fiddlesticks', height: 'tall', render: App})
 Devvit.addMenuItem({
   label: 'New Fiddlesticks Match',
   location: 'subreddit',
-  onPress: (_ev, ctx) => submitNewPost(ctx)
+  onPress: (_ev, ctx) => submitNewPost(ctx, true)
 })
 
 const matchScheduleForm: FormKey = Devvit.createForm(
@@ -36,8 +36,13 @@ async function onSaveSchedule(
   ctx: Context
 ): Promise<void> {
   const {enabled, mins} = ev.values
-  if (!enabled || !mins || !Number.isInteger(mins)) {
-    await ctx.scheduler.cancelJob(newMatchScheduleJob)
+  for (const job of await ctx.scheduler.listJobs()) {
+    console.log(`canceling job ${job.id} / ${job.name}`)
+    await ctx.scheduler.cancelJob(job.id)
+  }
+
+  if (!enabled || mins <= 0 || !Number.isInteger(mins)) {
+    console.log('unscheduled recurring matches')
     ctx.ui.showToast('Unscheduled recurring Fiddlesticks matches.')
     return
   }
@@ -49,11 +54,12 @@ async function onSaveSchedule(
   ctx.ui.showToast(
     `Scheduled recurring Fiddlesticks matches every ${mins} minute(s).`
   )
+  console.log(`scheduled recurring matches every ${mins} minute(s)`)
 }
 
 Devvit.addSchedulerJob<undefined>({
   name: newMatchScheduleJob,
-  onRun: (_ev, ctx) => submitNewPost(ctx)
+  onRun: (_ev, ctx) => submitNewPost(ctx, false)
 })
 
 Devvit.addMenuItem({

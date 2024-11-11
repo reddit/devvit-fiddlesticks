@@ -22,6 +22,7 @@
     "build": "esbuild --bundle --format=esm --log-level=info --outfile=webroot/index.js src/web-view/index.ts",
     "clean": "rm -rf dist webroot/index.js",
     "devvit:install": "npm run clean && npm run build && devvit upload && devvit install r/fiddlesticks",
+    "devvit:logs": "devvit logs --log-runtime r/fiddlesticks_dev",
     "devvit:playtest": "devvit playtest --log-runtime r/fiddlesticks_dev|grep --invert --line-buffered '\\[api\\]'",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
