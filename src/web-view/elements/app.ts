@@ -54,12 +54,12 @@ export class App extends HTMLElement {
   constructor() {
     super()
 
+    addEventListener('message', this._onMsg)
     this.attachShadow({mode: 'open'})
     this.shadowRoot!.adoptedStyleSheets.push(App.#styles)
   }
 
   connectedCallback(): void {
-    addEventListener('message', this._onMsg)
     this.render()
   }
 
