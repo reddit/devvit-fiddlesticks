@@ -14,10 +14,11 @@ export type Audio = {
 export function playBuffer(
   ctx: AudioContext,
   buf: AudioBuffer,
-  volume: number
+  volume: number,
+  drop: boolean = false
 ): void {
   if (!volume) return
-  if (ctx.state !== 'running') return // prevent queuing sounds.
+  if (drop && ctx.state !== 'running') return // prevent queuing sounds.
 
   const src = ctx.createBufferSource()
   src.buffer = buf
@@ -34,9 +35,10 @@ export function beep(
   type: OscillatorType,
   startHz: number,
   endHz: number,
-  duration: number
+  duration: number,
+  drop: boolean = false
 ): void {
-  if (ctx.state !== 'running') return // prevent queuing sounds.
+  // if (drop && ctx.state !== 'running') return // prevent queuing sounds.
   const now = ctx.currentTime
   const end = now + duration
 

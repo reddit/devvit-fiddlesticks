@@ -2,6 +2,7 @@
 import {Devvit} from '@devvit/public-api'
 import type {JSONValue} from '@devvit/public-api'
 import type {DevvitMessage, WebViewMessage} from '../../shared/types/message.js'
+import {paletteGreen} from '../../shared/types/palette.js'
 import type {Score} from '../../shared/types/serial.js'
 import {T2, T3, anonSnoovatarURL, anonUsername} from '../../shared/types/tid.js'
 import {submitNewPost} from '../utils/post.js'
@@ -56,20 +57,6 @@ export function App(ctx: Devvit.Context): JSX.Element {
     return {scores}
   })
 
-  useState2(
-    () =>
-      ctx.ui.webView.postMessage<DevvitMessage>('web-view', {
-        debug,
-        matchSetNum: postRecord.matchSetNum,
-        p1: {name: username, snoovatarURL, t2},
-        postMatchCnt,
-        score: match?.score ?? null,
-        scoreboard,
-        seed: postRecord.seed,
-        type: 'Init'
-      }) ?? null
-  )
-
   async function onMsg(msg: WebViewMessage): Promise<void> {
     if (debug)
       console.log(`${username} app received msg=${JSON.stringify(msg)}`)
@@ -88,33 +75,80 @@ export function App(ctx: Devvit.Context): JSX.Element {
         await submitNewPost(ctx, true)
         break
 
-      case 'Play':
-        if (match) throw Error('match exists')
-        {
-          let nonnullPlayer = player
-          if (!nonnullPlayer) {
-            nonnullPlayer = await redisPlayerCreate(ctx.redis, {
-              name: username,
-              snoovatarURL,
-              t2
-            })
-            setPlayer(player)
-          }
-          if (!postRecord) throw Error('no post record')
-          const match = await redisMatchCreate(
-            ctx.redis,
-            nonnullPlayer,
-            postRecord
-          )
-          setMatch(match)
-        }
-        break
-
       default:
         msg satisfies never
         break
     }
   }
+
+  const [launch, setLaunch] = useState2(false)
+
+  if (!launch)
+    return (
+      <vstack
+        width='100%'
+        height='100%'
+        alignment='top center'
+        backgroundColor={paletteGreen}
+        gap='large'
+        padding='medium'
+      >
+        <vstack width='100%' alignment='center' gap='none'>
+          <image
+            url='logo.png'
+            imageWidth='621px'
+            imageHeight='167.5px'
+            width='100%'
+            resizeMode='fit'
+          />
+          <text size='xlarge'>pick up sticks from top to bottom</text>
+        </vstack>
+        <button
+          appearance='primary'
+          size='large'
+          minWidth='128px'
+          icon='play-fill'
+          onPress={async () => {
+            const score = match?.score ?? null
+            if (score != null) {
+              await submitNewPost(ctx, true)
+              return
+            }
+
+            let nonnullPlayer = player
+            if (!nonnullPlayer) {
+              nonnullPlayer = await redisPlayerCreate(ctx.redis, {
+                name: username,
+                snoovatarURL,
+                t2
+              })
+              setPlayer(player)
+            }
+            if (!postRecord) throw Error('no post record')
+            const newMatch = await redisMatchCreate(
+              ctx.redis,
+              nonnullPlayer,
+              postRecord
+            )
+            setMatch(newMatch)
+
+            setLaunch(true)
+            ctx.ui.webView.postMessage<DevvitMessage>('web-view', {
+              debug,
+              matchSetNum: postRecord.matchSetNum,
+              p1: {name: username, snoovatarURL, t2},
+              postMatchCnt,
+              score,
+              scoreboard,
+              seed: postRecord.seed,
+              type: 'Init'
+            })
+          }}
+        >
+          {match?.score == null ? 'play' : 'new game'}
+        </button>
+      </vstack>
+    )
 
   return (
     <webview

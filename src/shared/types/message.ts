@@ -19,5 +19,4 @@ export type DevvitMessage = {
 /** a window message from the web view to the app. */
 export type WebViewMessage =
   | {score: number; readonly type: 'GameOver'}
-  | {readonly type: 'Play'}
   | {readonly type: 'NewGame'}

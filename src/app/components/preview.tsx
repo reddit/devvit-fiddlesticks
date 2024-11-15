@@ -9,8 +9,8 @@ export function Preview(): JSX.Element {
   // to-do: this should be a golf bag silhouette or tiled pattern.
   return (
     <vstack
-      width={'100%'}
-      height={'100%'}
+      width='100%'
+      height='100%'
       alignment='center middle'
       backgroundColor={paletteGreen}
     >

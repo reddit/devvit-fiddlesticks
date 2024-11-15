@@ -49,7 +49,7 @@ export class App extends HTMLElement {
   #rnd: Random | undefined
   #score: number = 0
   #scoreboard: Scoreboard = {scores: []}
-  #state: 'Loading' | 'Playable' | 'Playing' | 'Unplayable' = 'Loading'
+  #state: 'Loading' | 'Playing' | 'Unplayable' = 'Loading'
 
   constructor() {
     super()
@@ -82,33 +82,16 @@ export class App extends HTMLElement {
     this.render()
   }
 
-  #onPlay(): void {
-    if (this.#audio?.ctx.state !== 'running') void this.#audio?.ctx.resume() // don't await; this can hang.
-
-    this.#state = 'Playing'
-    // this.#started = utcMillisNow()
-    this.#postMessage({type: 'Play'})
-    this.render()
-  }
-
   #onPoint(ev: CustomEvent<number>): void {
     this.#score += ev.detail
     this.render()
   }
 
   render(): void {
+    if (this.#audio?.ctx.state !== 'running') void this.#audio?.ctx.resume() // don't await; this can hang.
     switch (this.#state) {
       case 'Loading':
-      case 'Playable':
-        this.#render(
-          html`<title-screen
-            .color=${this.#color}
-            .loaded=${this.#state === 'Playable'}
-            .matchSetNum=${this.#matchSetNum}
-            .postMatchCnt=${this.#postMatchCnt}
-            @play='${this.#onPlay}'
-          ></title-screen>`
-        )
+        this.#render(html`<title-screen></title-screen>`)
         break
       case 'Playing':
         this.#render(
@@ -164,7 +147,7 @@ export class App extends HTMLElement {
         this.#postMatchCnt = msg.postMatchCnt
         this.#score = msg.score ?? 0
         this.#scoreboard = msg.scoreboard
-        this.#state = msg.score == null ? 'Playable' : 'Unplayable'
+        this.#state = msg.score == null ? 'Playing' : 'Unplayable'
         this.render()
         break
 
