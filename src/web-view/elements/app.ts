@@ -2,10 +2,7 @@ import {type TemplateResult, html, render} from 'lit-html'
 import './game-over-screen.js'
 import './play-screen.js'
 import './title-screen.js'
-import type {
-  AppMessageQueue,
-  NoIDWebViewMessage
-} from '../../shared/types/message.js'
+import type {DevvitMessage, WebViewMessage} from '../../shared/types/message.js'
 import {Random} from '../../shared/types/random.js'
 import type {Profile, Scoreboard} from '../../shared/types/serial.js'
 import {anonSnoovatarURL, anonUsername, noT2} from '../../shared/types/tid.js'
@@ -46,7 +43,6 @@ export class App extends HTMLElement {
   #color: number = 0
   #debug: boolean = false
   #matchSetNum: number = 0
-  #msgID: number = 0
   #p1: Profile = {name: anonUsername, snoovatarURL: anonSnoovatarURL, t2: noT2}
   #played: boolean = false
   #postMatchCnt: number = 0
@@ -145,47 +141,40 @@ export class App extends HTMLElement {
   }
 
   _onMsg = (
-    ev: MessageEvent<
-      {type: 'stateUpdate'; data: AppMessageQueue} | {type: undefined}
-    >
+    ev: MessageEvent<{type?: 'devvit-message'; data: {message: DevvitMessage}}>
   ): void => {
-    if (ev.data.type !== 'stateUpdate') return // hack: filter unknown messages.
+    // hack: filter unknown messages.
+    if (ev.data.type !== 'devvit-message') return
 
-    for (const msg of ev.data.data.q) {
-      // hack: filter repeat messages.
-      if (msg.id <= this.#msgID) continue
-      this.#msgID = msg.id
+    const msg = ev.data.data.message
+    if (this.#debug || msg.debug)
+      console.log(`web view received msg=${JSON.stringify(msg)}`)
 
-      if (this.#debug || msg.debug)
-        console.log(`iframe received msg=${JSON.stringify(msg)}`)
+    switch (msg.type) {
+      case 'Init':
+        this.#rnd = new Random(msg.seed)
+        // use the seed right away for deterministic parts.
+        this.#bag = Bag(this.#rnd)
+        this.#color = this.#rnd.num * 360
+        this.#debug = msg.debug
+        this.#matchSetNum = msg.matchSetNum
+        this.#p1.t2 = msg.p1.t2
+        this.#p1.name = msg.p1.name
+        this.#p1.snoovatarURL = msg.p1.snoovatarURL
+        this.#postMatchCnt = msg.postMatchCnt
+        this.#score = msg.score ?? 0
+        this.#scoreboard = msg.scoreboard
+        this.#state = msg.score == null ? 'Playable' : 'Unplayable'
+        this.render()
+        break
 
-      switch (msg.type) {
-        case 'Init':
-          this.#rnd = new Random(msg.seed)
-          // use the seed right away for deterministic parts.
-          this.#bag = Bag(this.#rnd)
-          this.#color = this.#rnd.num * 360
-          this.#debug = msg.debug
-          this.#matchSetNum = msg.matchSetNum
-          this.#p1.t2 = msg.p1.t2
-          this.#p1.name = msg.p1.name
-          this.#p1.snoovatarURL = msg.p1.snoovatarURL
-          this.#postMatchCnt = msg.postMatchCnt
-          this.#score = msg.score ?? 0
-          this.#scoreboard = msg.scoreboard
-          this.#state = msg.score == null ? 'Playable' : 'Unplayable'
-          this.render()
-          this.#postMessage({type: 'Init'})
-          break
-
-        default:
-          msg.type satisfies never
-      }
+      default:
+        msg.type satisfies never
     }
   }
 
-  #postMessage(msg: NoIDWebViewMessage): void {
-    parent.postMessage({...msg, id: this.#msgID}, document.referrer || '*')
+  #postMessage(msg: WebViewMessage): void {
+    parent.postMessage(msg, document.referrer || '*')
   }
 
   #render(template: TemplateResult): void {

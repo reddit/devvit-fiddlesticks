@@ -1,10 +1,7 @@
 // biome-ignore lint/style/useImportType: Devvit is a functional dependency of JSX.
 import {Devvit} from '@devvit/public-api'
-import type {JSONObject} from '@devvit/public-api'
-import {
-  AppMessageQueue,
-  type WebViewMessage
-} from '../../shared/types/message.js'
+import type {JSONValue} from '@devvit/public-api'
+import type {DevvitMessage, WebViewMessage} from '../../shared/types/message.js'
 import type {Score} from '../../shared/types/serial.js'
 import {T2, T3, anonSnoovatarURL, anonUsername} from '../../shared/types/tid.js'
 import {submitNewPost} from '../utils/post.js'
@@ -59,39 +56,25 @@ export function App(ctx: Devvit.Context): JSX.Element {
     return {scores}
   })
 
-  const [msgQueue, setMsgQueue] = useState2(
-    AppMessageQueue({
-      debug,
-      matchSetNum: postRecord.matchSetNum,
-      p1: {name: username, snoovatarURL, t2},
-      postMatchCnt,
-      score: match?.score ?? null,
-      scoreboard,
-      seed: postRecord.seed,
-      type: 'Init'
-    })
+  useState2(
+    () =>
+      ctx.ui.webView.postMessage<DevvitMessage>('web-view', {
+        debug,
+        matchSetNum: postRecord.matchSetNum,
+        p1: {name: username, snoovatarURL, t2},
+        postMatchCnt,
+        score: match?.score ?? null,
+        scoreboard,
+        seed: postRecord.seed,
+        type: 'Init'
+      }) ?? null
   )
-
-  // function queueMsg(msg: Readonly<NoIDAppMessage>): void {
-  //   setMsgQueue(prev => ({
-  //     id: prev.id + 1,
-  //     q: [...prev.q, {...msg, id: prev.id + 1}]
-  //   }))
-  // }
-
-  function drainQueue(id: number): void {
-    setMsgQueue(prev => ({id: prev.id, q: prev.q.filter(msg => msg.id > id)}))
-  }
 
   async function onMsg(msg: WebViewMessage): Promise<void> {
     if (debug)
       console.log(`${username} app received msg=${JSON.stringify(msg)}`)
-    drainQueue(msg.id)
 
     switch (msg.type) {
-      case 'Init':
-        break
-
       case 'GameOver':
         setMatch(prev => {
           if (!prev) throw Error('no match')
@@ -135,9 +118,9 @@ export function App(ctx: Devvit.Context): JSX.Element {
 
   return (
     <webview
+      id='web-view'
       grow
-      onMessage={onMsg as (msg: JSONObject) => Promise<void>}
-      state={msgQueue}
+      onMessage={onMsg as (msg: JSONValue) => Promise<void>}
       url='index.html'
     />
   )

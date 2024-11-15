@@ -1,4 +1,4 @@
-import {AppMessageQueue} from '../shared/types/message.js'
+import type {DevvitMessage} from '../shared/types/message.js'
 import {randomEndSeed} from '../shared/types/random.js'
 import './elements/app.js'
 
@@ -27,12 +27,14 @@ if (noBlocks) {
   setTimeout(
     () =>
       app!._onMsg(
-        new MessageEvent<{type: 'stateUpdate'; data: AppMessageQueue}>(
-          'message',
-          {
+        new MessageEvent<{
+          type?: 'devvit-message'
+          data: {message: DevvitMessage}
+        }>('message', {
+          data: {
+            type: 'devvit-message',
             data: {
-              type: 'stateUpdate',
-              data: AppMessageQueue({
+              message: {
                 debug: true,
                 matchSetNum: 24,
                 p1: {
@@ -130,10 +132,10 @@ if (noBlocks) {
                 },
                 seed,
                 type: 'Init'
-              })
+              }
             }
           }
-        )
+        })
       ),
     delay
   )
