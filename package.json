@@ -16,23 +16,21 @@
   },
   "license": "BSD-3-Clause",
   "name": "fiddlesticks",
+  "private": true,
   "scripts": {
     "build": "esbuild --bundle --format=esm --log-level=info --outfile=webroot/index.js src/web-view/index.ts",
     "clean": "rm -rf dist webroot/index.js",
     "devvit:install": "npm run clean && npm run build && devvit upload && devvit install r/fiddlesticks",
     "devvit:logs": "devvit logs --log-runtime r/fiddlesticks_dev",
-    "devvit:playtest": "devvit playtest --log-runtime r/fiddlesticks_dev|grep --invert --line-buffered '\\[api\\]'",
+    "devvit:playtest": "devvit playtest --config=devvit.dev.yaml --log-runtime r/fiddlesticks_dev|grep --invert --line-buffered '\\[api\\]'",
     "format": "npm run formatter -- --fix",
     "formatter": "biome check --error-on-warnings",
-    "playtest": "trap 'kill 0' exit; npm run build -- --watch=forever& npm run devvit:playtest& wait",
-    "preversion": "[ -z \"$(git status -z)\" ]",
-    "prepublishOnly": "! git symbolic-ref --quiet HEAD || git push --follow-tags origin \"$(git branch --show-current)\"",
-    "start": "npm run build -- --banner:js='new globalThis.EventSource(\"/esbuild\").addEventListener(\"change\", () => location.reload());' --serve=1234 --servedir=webroot --watch=forever --serve",
+    "playtest": "trap 'kill 0' exit; npm start& npm run build -- --watch=forever& npm run devvit:playtest& wait",
+    "start": "npm run build -- --banner:js='new EventSource(\"/esbuild\").addEventListener(\"change\", () => location.reload());' --serve=1234 --servedir=webroot --watch=forever",
     "test": "npm run test:format && npm run test:types && npm run test:unit",
     "test:format": "npm run formatter",
     "test:types": "tsc --build",
-    "test:unit": "NODE_OPTIONS='--no-warnings=ExperimentalWarning' vitest run",
-    "version": "npm test"
+    "test:unit": "NODE_OPTIONS='--no-warnings=ExperimentalWarning' vitest run"
   },
   "type": "module",
   "version": "0.0.0"
