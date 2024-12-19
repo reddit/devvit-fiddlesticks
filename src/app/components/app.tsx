@@ -35,11 +35,6 @@ export function App(ctx: Devvit.Context): JSX.Element {
   const [postMatchCnt] = useState2(() =>
     redisPostMatchCountQuery(ctx.redis, t3)
   )
-  const [[username, snoovatarURL]] = useState2<[string, string]>(async () => {
-    const user = await ctx.reddit.getCurrentUser()
-    const url = await user?.getSnoovatarUrl()
-    return [user?.username ?? anonUsername, url ?? anonSnoovatarURL]
-  })
 
   const [scoreboard] = useState2(async () => {
     const scores: Score[] = []
@@ -59,7 +54,7 @@ export function App(ctx: Devvit.Context): JSX.Element {
 
   async function onMsg(msg: WebViewMessage): Promise<void> {
     if (debug)
-      console.log(`${username} app received msg=${JSON.stringify(msg)}`)
+      console.log(`${ctx.userId} app received msg=${JSON.stringify(msg)}`)
 
     switch (msg.type) {
       case 'GameOver':
@@ -69,6 +64,46 @@ export function App(ctx: Devvit.Context): JSX.Element {
         })
         if (!match) throw Error('no match')
         await redisMatchUpdate(ctx.redis, {...match, score: msg.score})
+        break
+
+      case 'Loaded':
+        {
+          const score = match?.score ?? null
+          if (score != null) {
+            await submitNewPost(ctx, true)
+            return
+          }
+
+          let nonnullPlayer = player
+          if (!nonnullPlayer) {
+            const user = await ctx.reddit.getCurrentUser()
+            nonnullPlayer = await redisPlayerCreate(ctx.redis, {
+              name: user?.username ?? anonUsername,
+              snoovatarURL: (await user?.getSnoovatarUrl()) ?? anonSnoovatarURL,
+              t2
+            })
+            setPlayer(player)
+          }
+          if (!postRecord) throw Error('no post record')
+          const newMatch = await redisMatchCreate(
+            ctx.redis,
+            nonnullPlayer,
+            postRecord
+          )
+          setMatch(newMatch)
+
+          ctx.ui.webView.postMessage<DevvitMessage>('web-view', {
+            debug,
+            matchSetNum: postRecord.matchSetNum,
+            p1: nonnullPlayer,
+            postMatchCnt,
+            score: score ?? 0, // https://reddit.atlassian.net/browse/DXC-1013
+            newGame: score == null, // https://reddit.atlassian.net/browse/DXC-1013
+            scoreboard,
+            seed: postRecord.seed,
+            type: 'Init'
+          })
+        }
         break
 
       case 'NewGame':
@@ -108,42 +143,7 @@ export function App(ctx: Devvit.Context): JSX.Element {
           size='large'
           minWidth='128px'
           icon='play-fill'
-          onPress={async () => {
-            const score = match?.score ?? null
-            if (score != null) {
-              await submitNewPost(ctx, true)
-              return
-            }
-
-            let nonnullPlayer = player
-            if (!nonnullPlayer) {
-              nonnullPlayer = await redisPlayerCreate(ctx.redis, {
-                name: username,
-                snoovatarURL,
-                t2
-              })
-              setPlayer(player)
-            }
-            if (!postRecord) throw Error('no post record')
-            const newMatch = await redisMatchCreate(
-              ctx.redis,
-              nonnullPlayer,
-              postRecord
-            )
-            setMatch(newMatch)
-
-            setLaunch(true)
-            ctx.ui.webView.postMessage<DevvitMessage>('web-view', {
-              debug,
-              matchSetNum: postRecord.matchSetNum,
-              p1: {name: username, snoovatarURL, t2},
-              postMatchCnt,
-              score,
-              scoreboard,
-              seed: postRecord.seed,
-              type: 'Init'
-            })
-          }}
+          onPress={() => setLaunch(true)}
         >
           {match?.score == null ? 'play' : 'new game'}
         </button>

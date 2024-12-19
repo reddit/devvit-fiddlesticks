@@ -1,6 +1,3 @@
-import {html, render} from 'lit-html'
-import {Bubble} from '../utils/bubble.js'
-import {spacePx} from '../utils/metrics.js'
 import {css, styles} from './css.js'
 
 declare global {
@@ -25,5 +22,3 @@ export class TitleScreen extends HTMLElement {
 }
 
 customElements.define('title-screen', TitleScreen)
-
-// to-do: parallel playtest and start.

@@ -57,6 +57,7 @@ export class App extends HTMLElement {
     addEventListener('message', this._onMsg)
     this.attachShadow({mode: 'open'})
     this.shadowRoot!.adoptedStyleSheets.push(App.#styles)
+    this.#postMessage({type: 'Loaded'})
   }
 
   connectedCallback(): void {
@@ -145,9 +146,9 @@ export class App extends HTMLElement {
         this.#p1.name = msg.p1.name
         this.#p1.snoovatarURL = msg.p1.snoovatarURL
         this.#postMatchCnt = msg.postMatchCnt
-        this.#score = msg.score ?? 0
+        this.#score = msg.score || 0 // https://reddit.atlassian.net/browse/DXC-1013
         this.#scoreboard = msg.scoreboard
-        this.#state = msg.score == null ? 'Playing' : 'Unplayable'
+        this.#state = msg.newGame ? 'Playing' : 'Unplayable' // https://reddit.atlassian.net/browse/DXC-1013
         this.render()
         break
 

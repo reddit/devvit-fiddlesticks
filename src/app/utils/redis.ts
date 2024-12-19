@@ -225,9 +225,7 @@ export async function* redisPlayerMatchesByCreatedQuery(
     t3T2CreatedZByT2Key,
     start,
     end,
-    {
-      by: 'score'
-    }
+    {by: 'score'}
   )) {
     const match = await redisMatchQuery(redis, t3t2 as T3T2)
     if (match) yield match

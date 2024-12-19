@@ -9,6 +9,7 @@ export type DevvitMessage = {
   debug: boolean
   p1: Profile
   matchSetNum: number
+  newGame: boolean
   postMatchCnt: number
   score: number | null
   scoreboard: Scoreboard
@@ -19,4 +20,5 @@ export type DevvitMessage = {
 /** a window message from the web view to the app. */
 export type WebViewMessage =
   | {score: number; readonly type: 'GameOver'}
+  | {readonly type: 'Loaded'}
   | {readonly type: 'NewGame'}
